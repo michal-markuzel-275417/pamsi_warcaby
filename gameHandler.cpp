@@ -388,16 +388,19 @@ void gameHandler::isGameFinished() {
  */
 void gameHandler::play() {
     printBoard();
+    // gameAlgorithm algoMinMax(depth);
+    // std::vector<pos> moves;
 
     while (curentGameState == BLACK_TURN || curentGameState == WHITE_TURN) {
         if (curentGameState == BLACK_TURN) {
-            // askNextMove();
-            std::cout << "Czarne: random" << std::endl;
-            randomMoves();
+            askNextMove();
+            // std::cout << "Czarne: random" << std::endl;
+            // randomMoves();
         } else {
             // askNextMove();
-            std::cout << "Białe: random" << std::endl;
-            randomMoves();
+            std::cout << "Białe: min-max" << std::endl;
+            // moves = algoMinMax.getBestMove(this);
+            // currentMoves = moves;
         }
 
         handleNextMoves();
@@ -538,3 +541,24 @@ bool gameHandler::goodOrientation(pos piecePos1, pos piecePos2) {
 
     return true;
 }
+
+void gameHandler::setBoard(std::vector<std::vector<field>> board) {
+    for(int x = 0; x < 8; x++)
+        for(int y = 0; y < 8; y++) {
+            this->board[x][y] = board[x][y];
+        }
+}
+
+void gameHandler::setCurretnMoves(std::vector<pos> currentMoves) {
+    this->currentMoves = currentMoves;
+}
+
+std::vector<std::vector<field>> gameHandler::getBoard() {
+    return board;
+}
+
+gameState gameHandler::getCurrentGameState() {
+    return curentGameState;
+}
+
+

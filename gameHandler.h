@@ -31,24 +31,18 @@ enum orientation {
 
 // Class handling the game logic, inheriting from checkersBoard.
 class gameHandler : public checkersBoard {
-private:
-    int roundsCtr;
+protected:
     gameState curentGameState; // Current state of the game
-    std::vector<pos> currentMoves; // Vector storing the current moves
+
+private:
     bool debug = false;
     int maxKingMoves = 10;
     int whiteKingMoves;
     int blackKingMoves;
+    int const depth = 20;
 
     static std::vector<int> readInput(std::string &input);
 
-    static std::vector<pos> notationToPos(const std::vector<int> &moves);
-
-    static pos notationToPos(int field);
-
-    void handleNextMoves();
-
-    bool isLeagalMoves();
 
     static orientation calculateOrientation(pos pos_1, pos pos_2);
 
@@ -56,26 +50,46 @@ private:
 
     static pos getFieldPosBetween(pos pos_1, pos pos_2);
 
-    void isGameFinished();
-
-    void askNextMove();
-
     void randomMoves();
 
     static float getDistanceBetween(pos tempPos_1, pos tempPos_2);
 
     void promotion();
 
-    bool canTake(pos piecePos, std::vector<pos> &fieldsToJump) ;
+    bool canTake(pos piecePos, std::vector<pos> &fieldsToJump);
 
     bool goodOrientation(pos piecePos1, pos piecePos2);
 
+    std::vector<pos> notationToPos(const std::vector<int> &moves);
+
 public:
+    void isGameFinished();
+
+    int roundsCtr;
+
+    void askNextMove();
+
+    static pos notationToPos(int field);
+
+    std::vector<pos> currentMoves; // Vector storing the current moves
+
+    void handleNextMoves();
+
     gameHandler();
+
+    bool isLeagalMoves();
 
     ~gameHandler() = default;
 
     void play();
+
+    void setBoard(std::vector<std::vector<field> > board);
+
+    std::vector<std::vector<field> > getBoard();
+
+    void setCurretnMoves(std::vector<pos> currentMoves);
+
+    gameState getCurrentGameState();
 };
 
 

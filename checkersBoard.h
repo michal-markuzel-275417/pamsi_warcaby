@@ -50,11 +50,10 @@ class checkersBoard {
 private:
     static char returnPieceChar(field tempField);
 
-protected:
-    std::vector<std::vector<field>> board;
-
 public:
     checkersBoard();
+
+    std::vector<std::vector<field>> board;
 
     ~checkersBoard() = default;
 

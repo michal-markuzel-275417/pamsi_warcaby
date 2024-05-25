@@ -7,4 +7,6 @@ add_executable(pamsi_warcaby main.cpp
         checkersBoard.cpp
         checkersBoard.h
         gameHandler.cpp
-        gameHandler.h)
+        gameHandler.h
+        gameAlgorithm.cpp
+        gameAlgorithm.h)
