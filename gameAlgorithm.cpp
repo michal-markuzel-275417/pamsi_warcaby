@@ -6,6 +6,8 @@
 
 #include <cfloat>
 
+// https://gamedev.stackexchange.com/questions/31166/how-to-utilize-minimax-algorithm-in-checkers-game
+
 gameAlgorithm::gameAlgorithm(int depth) {
     maxDepth = depth;
 }
@@ -128,10 +130,13 @@ int gameAlgorithm::calculateBoard(std::vector<std::vector<field> > board) {
 }
 
 float gameAlgorithm::evaluatePositionRecursive(int depth, gameHandler curGame, float signFactor) {
-    if (depth >= maxDepth)
-        return calculateBoard(curGame.getBoard());
 
-    std::vector<std::vector<pos> > moves = generateMovesList(curGame);
+    if (depth >= maxDepth) {
+        return calculateBoard(curGame.getBoard());
+        // curGame.printBoard();
+    }
+
+    std::vector<std::vector<pos>> moves = generateMovesList(curGame);
 
     if (moves.empty())
         return calculateBoard(curGame.getBoard());
@@ -139,8 +144,7 @@ float gameAlgorithm::evaluatePositionRecursive(int depth, gameHandler curGame, f
     float posValue = -FLT_MAX;
 
     for (int i = 0; i < moves.size(); i++) {
-        gameHandler newGame;
-        newGame.setBoard(curGame.getBoard());
+        gameHandler newGame = curGame;
         newGame.currentMoves = moves[i];
         newGame.handleNextMoves();
 
@@ -148,7 +152,11 @@ float gameAlgorithm::evaluatePositionRecursive(int depth, gameHandler curGame, f
 
         if (newValue > posValue)
             posValue = newValue;
+
+        // std::cout << "Depth nr: " << depth << std::endl;
+        // newGame.printBoard();
     }
+
 
     return signFactor * posValue;
 }
@@ -170,11 +178,11 @@ void gameAlgorithm::play() {
         if (curentGameState == BLACK_TURN) {
             // game.askNextMove();
 
-            // std::cout << "Czarne: random" << std::endl;
-            // // game.randomMoves();
+            std::cout << "Czarne: random" << std::endl;
+            game.randomMoves();
 
-            std::cout << "Czarne: min-max" << std::endl;
-            getBestMove(game);
+            // std::cout << "Czarne: min-max" << std::endl;
+            // getBestMove(game);
         } else {
             // askNextMove();
 

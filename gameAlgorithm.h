@@ -23,7 +23,6 @@ private:
 
     float evaluatePositionRecursive(int depth, gameHandler curGame, float signFactor);
 
-    // std::vector<pos> getBestMove(const gameHandler curGame);
     void getBestMove(gameHandler& game);
 
 public:

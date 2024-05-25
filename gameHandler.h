@@ -91,6 +91,8 @@ public:
     void setCurretnMoves(std::vector<pos> currentMoves);
 
     gameState getCurrentGameState();
+
+    gameHandler& operator=(const gameHandler& other) = default;
 };
 
 
