@@ -31,7 +31,7 @@ enum orientation {
 
 // Class handling the game logic, inheriting from checkersBoard.
 class gameHandler : public checkersBoard {
-protected:
+public:
     gameState curentGameState; // Current state of the game
 
 private:
@@ -50,7 +50,6 @@ private:
 
     static pos getFieldPosBetween(pos pos_1, pos pos_2);
 
-    void randomMoves();
 
     static float getDistanceBetween(pos tempPos_1, pos tempPos_2);
 
@@ -64,6 +63,8 @@ private:
 
 public:
     void isGameFinished();
+
+    void randomMoves();
 
     int roundsCtr;
 

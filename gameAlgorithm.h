@@ -7,7 +7,8 @@
 #include "gameHandler.h"
 
 
-class gameAlgorithm : public gameHandler{
+class gameAlgorithm
+{
 private:
     gameHandler game;
     int maxDepth;
@@ -23,7 +24,7 @@ private:
     float evaluatePositionRecursive(int depth, gameHandler curGame, float signFactor);
 
     // std::vector<pos> getBestMove(const gameHandler curGame);
-    std::vector<pos> getBestMove();
+    void getBestMove(gameHandler& game);
 
 public:
     gameAlgorithm(int depth);

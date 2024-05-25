@@ -7,16 +7,26 @@
 #include <cfloat>
 
 gameAlgorithm::gameAlgorithm(int depth) {
-    maxDepth=depth;
+    maxDepth = depth;
 }
 
-std::vector<pos> gameAlgorithm::getBestMove() {
+void gameAlgorithm::getBestMove(gameHandler& game) {
     std::vector<std::vector<pos> > legalMoves;
     legalMoves = generateMovesList(game);
     float val;
     float minValue = 0, maxValue = 0;
     int minValueIndex = 0, maxValueIndex = 0;
 
+    gameState whoseTurn = game.getCurrentGameState();;
+
+    if (legalMoves.empty() && whoseTurn == WHITE_TURN) {
+        game.curentGameState = B_WIN;
+        return;
+    }
+    if (legalMoves.empty() && whoseTurn == BLACK_TURN) {
+        game.curentGameState = W_WIN;
+        return;
+    }
 
     for (int i = 0; i < legalMoves.size(); i++) {
         val = evaluatePositionRecursive(0, game, 1.0f);
@@ -31,10 +41,11 @@ std::vector<pos> gameAlgorithm::getBestMove() {
         }
     }
 
+
     if (game.getCurrentGameState() == BLACK_TURN)
-        return legalMoves[maxValueIndex];
+        game.currentMoves = legalMoves[maxValueIndex];
     if (game.getCurrentGameState() == WHITE_TURN)
-        return legalMoves[minValueIndex];
+        game.currentMoves = legalMoves[minValueIndex];
 }
 
 std::vector<std::vector<pos> > gameAlgorithm::generateMovesList(gameHandler curGame) {
@@ -57,6 +68,11 @@ std::vector<std::vector<pos> > gameAlgorithm::generateMovesList(gameHandler curG
                 legalMoves.push_back(curGame.currentMoves);
             }
         }
+    }
+
+    if (moveFound == false) {
+        legalMoves.clear();
+        return legalMoves;
     }
 
     return legalMoves;
@@ -117,6 +133,9 @@ float gameAlgorithm::evaluatePositionRecursive(int depth, gameHandler curGame, f
 
     std::vector<std::vector<pos> > moves = generateMovesList(curGame);
 
+    if (moves.empty())
+        return calculateBoard(curGame.getBoard());
+
     float posValue = -FLT_MAX;
 
     for (int i = 0; i < moves.size(); i++) {
@@ -138,32 +157,40 @@ float gameAlgorithm::evaluatePositionRecursive(int depth, gameHandler curGame, f
  * Plays the game by alternating turns until the game ends.
  */
 void gameAlgorithm::play() {
-    printBoard();
-    std::vector<pos> moves;
+    game.printBoard();
+    gameState curentGameState = game.getCurrentGameState();
 
     while (curentGameState == BLACK_TURN || curentGameState == WHITE_TURN) {
-        if (curentGameState == BLACK_TURN) {
-            askNextMove();
-            // std::cout << "Czarne: random" << std::endl;
-            // randomMoves();
-        } else {
-            // askNextMove();
-            std::cout << "Białe: min-max" << std::endl;
-            moves = getBestMove();
-            currentMoves = moves;
+        curentGameState = game.getCurrentGameState();
+
+        if (game.roundsCtr > 0) {
+            game.isGameFinished();
         }
 
-        handleNextMoves();
-        isGameFinished();
-        printBoard();
+        if (curentGameState == BLACK_TURN) {
+            // game.askNextMove();
 
-        roundsCtr++;
+            // std::cout << "Czarne: random" << std::endl;
+            // // game.randomMoves();
+
+            std::cout << "Czarne: min-max" << std::endl;
+            getBestMove(game);
+        } else {
+            // askNextMove();
+
+            std::cout << "Białe: min-max" << std::endl;
+            getBestMove(game);
+        }
+        game.handleNextMoves();
+        game.printBoard();
+
+        game.roundsCtr++;
     }
 
     if (curentGameState == B_WIN)
-        std::cout << "KONIEC GRY - czarne wygrywają " << roundsCtr << std::endl << std::endl;
+        std::cout << "KONIEC GRY - czarne wygrywają " << game.roundsCtr << std::endl << std::endl;
     else if (curentGameState == W_WIN)
-        std::cout << "KONIEC GRY - białe wygrywają " << roundsCtr << std::endl << std::endl;
+        std::cout << "KONIEC GRY - białe wygrywają " << game.roundsCtr << std::endl << std::endl;
     else
         std::cout << "KONIEC GRY - remis" << std::endl << std::endl;
 }
