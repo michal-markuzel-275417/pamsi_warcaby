@@ -11,9 +11,9 @@
  * Enum representing the different types of pieces in the game.
  */
 enum piece {
-    CHECKER, // Checker
-    KING,    // Black king
-    EMPTY      // Empty field
+    CHECKER,
+    KING,
+    EMPTY
 };
 
 enum color {
@@ -39,7 +39,7 @@ struct pos {
  * Struct representing a field on the board.
  */
 struct field {
-    piece pieceKind; // The type of piece on the field
+    piece pieceKind;
     color pieceColor;
 };
 
@@ -47,13 +47,14 @@ struct field {
  * Class representing the checkers board and its operations.
  */
 class checkersBoard {
+protected:
+    std::vector<std::vector<field>> board;
+
 private:
     static char returnPieceChar(field tempField);
 
 public:
     checkersBoard();
-
-    std::vector<std::vector<field>> board;
 
     ~checkersBoard() = default;
 

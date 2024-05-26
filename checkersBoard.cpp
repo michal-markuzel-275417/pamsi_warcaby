@@ -4,7 +4,9 @@
 
 #include "checkersBoard.h"
 
-// Funkcja ustawiająca kolor tekstu z opcją pogrubienia
+/**
+ * Function sets the choosed color and font
+ */
 void setColor(int color, bool bold = false) {
     if (bold) {
         std::cout << "\033[1;" << color << "m";
@@ -13,7 +15,9 @@ void setColor(int color, bool bold = false) {
     }
 }
 
-// Funkcja resetująca kolor tekstu do domyślnego
+/**
+ * Function sets the default color
+ */
 void resetColor() {
     std::cout << "\033[0m";
 }
@@ -87,7 +91,7 @@ void checkersBoard::printBoard() {
     int ctr = 1;
 
     for (int y = 0; y < 8; y++) {
-        std::cout << " ------------------------------------------------" << std::endl;
+        std::cout << " -------------------------------------------------" << std::endl;
         std::cout << " |";
 
         for (int x = 0; x < 8; x++) {
@@ -110,5 +114,5 @@ void checkersBoard::printBoard() {
         std::cout << std::endl;
     }
 
-    std::cout << " ------------------------------------------------" << std::endl;
+    std::cout << " -------------------------------------------------" << std::endl;
 }

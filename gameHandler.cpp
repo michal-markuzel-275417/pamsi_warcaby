@@ -346,15 +346,15 @@ void gameHandler::isGameFinished() {
 
     if (whiteCtr == 0) {
         curentGameState = B_WIN;
-        // return;
+        return;
     }
 
     if (blackCtr == 0) {
         curentGameState = W_WIN;
-        // return;
+        return;
     }
 
-    // Sprawdzenie ruchu dla białych
+    // Sprawdzenie ruchów królem dla białych
     if (lastState == WHITE_TURN) {
         // Sprawdzenie czy pionek to król
         if (board[firstPos.x][firstPos.y].pieceKind == KING) {
@@ -366,7 +366,7 @@ void gameHandler::isGameFinished() {
         }
     }
 
-    // Sprawdzenie ruchu dla czarnych
+    // Sprawdzenie ruchów królem dla czarnych
     if (lastState == BLACK_TURN) {
         // Sprawdzenie czy pionek to król
         if (board[firstPos.x][firstPos.y].pieceKind == KING) {
@@ -391,9 +391,8 @@ void gameHandler::isGameFinished() {
  * Plays the game by alternating turns until the game ends.
  */
 void gameHandler::play() {
+    std::cout << "Początkowa plansza:" << std::endl;
     printBoard();
-    // gameAlgorithm algoMinMax(depth);
-    // std::vector<pos> moves;
 
     while (curentGameState == BLACK_TURN || curentGameState == WHITE_TURN) {
         if (curentGameState == BLACK_TURN) {
@@ -431,7 +430,7 @@ void gameHandler::randomMoves() {
     std::vector<pos> piecesPos, emptyFields;
     std::vector<std::vector<pos> > legalMoves;
 
-    pos temp = {0,0};
+    pos temp = {0, 0};
     color playerColor = NONE;
 
     if (curentGameState != WHITE_TURN && curentGameState != BLACK_TURN)
@@ -478,7 +477,9 @@ void gameHandler::randomMoves() {
     }
 
     if (!moveFound) {
-        std::cerr << "Brak możliwego ruchu" << std::endl;
+        if (false)
+            std::cerr << "Brak możliwego ruchu" << std::endl;
+
         curentGameState = (curentGameState == WHITE_TURN) ? B_WIN : W_WIN;
         return;
     }
@@ -524,7 +525,8 @@ bool gameHandler::canTake(pos piecePos, std::vector<pos> &fieldsToJump) {
 
     for (int x = -1; x < 2; x += 2) {
         for (int y = -1; y < 2; y += 2) {
-            if (piecePos.x + 2 * x >= 0 && piecePos.x + 2 * x < 8 && piecePos.y + 2 * y >= 0 && piecePos.y + 2 * y < 8) {
+            if (piecePos.x + 2 * x >= 0 && piecePos.x + 2 * x < 8 && piecePos.y + 2 * y >= 0 && piecePos.y + 2 * y <
+                8) {
                 if (goodOrientation(piecePos, {piecePos.x + 2 * x, piecePos.y + 2 * y})) {
                     if (board[piecePos.x + x][piecePos.y + y].pieceColor == enemy) {
                         if (board[piecePos.x + 2 * x][piecePos.y + 2 * y].pieceKind == EMPTY) {
@@ -574,37 +576,24 @@ bool gameHandler::goodOrientation(pos piecePos1, pos piecePos2) {
  *
  * @param board A 2D vector representing the board state.
  */
-void gameHandler::setBoard(std::vector<std::vector<field> > board) {
-    for (int x = 0; x < 8; x++)
-        for (int y = 0; y < 8; y++) {
-            this->board[x][y] = board[x][y];
-        }
+// void gameHandler::setBoard(std::vector<std::vector<field> > board) {
+//     for (int x = 0; x < 8; x++)
+//         for (int y = 0; y < 8; y++) {
+//             this->board[x][y] = board[x][y];
+//         }
+// }
+
+/**
+ * Clear currentMoves.
+ */
+void gameHandler::clearCurrentMoves() {
+    currentMoves.clear();
 }
 
 /**
- * Sets the current moves.
- *
- * @param currentMoves A vector of positions representing the current moves.
+ * Sets currentMoves.
  */
-void gameHandler::setCurretnMoves(std::vector<pos> currentMoves) {
-    this->currentMoves = currentMoves;
+void gameHandler::setCurrentMoves(std::vector<pos> newCurrentMoves) {
+    currentMoves.clear();
+    currentMoves = newCurrentMoves;
 }
-
-/**
- * Gets the current board state.
- *
- * @return A 2D vector representing the board state.
- */
-std::vector<std::vector<field> > gameHandler::getBoard() {
-    return board;
-}
-
-/**
- * Gets the current game state.
- *
- * @return The current game state.
- */
-gameState gameHandler::getCurrentGameState() {
-    return curentGameState;
-}
-

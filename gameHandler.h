@@ -11,7 +11,9 @@
 #include <cstdlib>
 #include <ctime>
 
-// Enum representing the current state of the game.
+/*
+ * Enum representing the current state of the game.
+ */
 enum gameState {
     BLACK_TURN, // Black's turn
     WHITE_TURN, // White's turn
@@ -20,7 +22,9 @@ enum gameState {
     W_WIN // White wins
 };
 
-// Enum representing the possible orientations between two positions.
+/*
+ * Enum representing the possible orientations between two positions.
+ */
 enum orientation {
     UP_R, // Up-Right
     UP_L, // Up-Left
@@ -29,27 +33,28 @@ enum orientation {
     WRONG // Invalid orientation
 };
 
-// Class handling the game logic, inheriting from checkersBoard.
+/*
+ * Class handling the game logic, inheriting from checkersBoard.
+ */
 class gameHandler : public checkersBoard {
-public:
-    gameState curentGameState; // Current state of the game
+protected:
+    gameState curentGameState;
+    std::vector<pos> currentMoves;
 
 private:
     bool debug = false;
     int maxKingMoves = 10;
     int whiteKingMoves;
     int blackKingMoves;
-    int const depth = 20;
+    int roundsCtr;
 
     static std::vector<int> readInput(std::string &input);
-
 
     static orientation calculateOrientation(pos pos_1, pos pos_2);
 
     field getPieceBetween(pos pos_1, pos pos_2);
 
     static pos getFieldPosBetween(pos pos_1, pos pos_2);
-
 
     static float getDistanceBetween(pos tempPos_1, pos tempPos_2);
 
@@ -59,40 +64,34 @@ private:
 
     bool goodOrientation(pos piecePos1, pos piecePos2);
 
+public:
     std::vector<pos> notationToPos(const std::vector<int> &moves);
 
-public:
+    static pos notationToPos(int field);
+
     void isGameFinished();
 
     void randomMoves();
 
-    int roundsCtr;
-
     void askNextMove();
-
-    static pos notationToPos(int field);
-
-    std::vector<pos> currentMoves; // Vector storing the current moves
 
     void handleNextMoves();
 
-    gameHandler();
-
     bool isLeagalMoves();
-
-    ~gameHandler() = default;
 
     void play();
 
-    void setBoard(std::vector<std::vector<field> > board);
+    // void setBoard(std::vector<std::vector<field>> board);
 
-    std::vector<std::vector<field> > getBoard();
+    gameHandler();
 
-    void setCurretnMoves(std::vector<pos> currentMoves);
+    ~gameHandler() = default;
 
-    gameState getCurrentGameState();
+    gameHandler &operator=(const gameHandler &other) = default;
 
-    gameHandler& operator=(const gameHandler& other) = default;
+    void clearCurrentMoves();
+
+    void setCurrentMoves(std::vector<pos> newCurrentMoves);
 };
 
 

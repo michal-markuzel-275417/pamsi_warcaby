@@ -9,34 +9,31 @@
 enum interface { NET, GUI };
 
 
-class gameAlgorithm {
+class gameAlgorithm : public gameHandler{
 private:
-    gameHandler game;
-    int maxDepth;
-
     interface variant;
     color playerColor;
     int depth;
-    int random_seed; // ignore
     std::string ip_address;
     std::string ip_port;
+    int roundsCtr;
 
-    std::vector<pos> getPlayerFields(gameHandler curGame);
+    std::vector<pos> getPlayerFields();
 
-    std::vector<pos> getEmptyFields(gameHandler curGame);
+    std::vector<pos> getEmptyFields();
 
-    int calculateBoard(std::vector<std::vector<field> > board);
+    int calculateBoard();
 
-    std::vector<std::vector<pos> > generateMovesList(gameHandler curGame);
+    std::vector<std::vector<pos>> generateMovesList();
 
-    float minMAxAlgo_1(int depth, gameHandler curGame, gameState playerColor);
+    // float minMAxAlgo_1(int depth, gameHandler curGame, gameState playerColor);
+    //
+    // float minMAxAlgo_2(int depth, gameHandler curGame, gameState playerColor,
+    //                    float alpha, float beta);
 
-    float minMAxAlgo_2(int depth, gameHandler curGame, gameState playerColor,
-                       float alpha, float beta);
+    int minMAxAlgo_3(gameAlgorithm curGame, int depth, int alpha, int beta, bool maximizingPlayer);
 
-    int minMAxAlgo_3(gameHandler curGame, int depth, int alpha, int beta, bool maximizingPlayer);
-
-    void getBestMove(gameHandler &game);
+    void getBestMove();
 
 public:
     gameAlgorithm(int depth);
@@ -45,6 +42,8 @@ public:
                       std::string ip_port);
 
     ~gameAlgorithm() = default;
+
+    gameAlgorithm &operator=(const gameAlgorithm &other) = default;
 
     void play();
 };
