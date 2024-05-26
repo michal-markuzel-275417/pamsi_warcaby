@@ -6,11 +6,20 @@
 #define GAMEALGORITHM_H
 #include "gameHandler.h"
 
+enum interface { NET, GUI };
+
 
 class gameAlgorithm {
 private:
     gameHandler game;
     int maxDepth;
+
+    interface variant;
+    color playerColor;
+    int depth;
+    int random_seed; // ignore
+    std::string ip_address;
+    std::string ip_port;
 
     std::vector<pos> getPlayerFields(gameHandler curGame);
 
@@ -31,6 +40,9 @@ private:
 
 public:
     gameAlgorithm(int depth);
+
+    gameAlgorithm(interface variant, color playerColor, int depth, std::string ip_address,
+                      std::string ip_port);
 
     ~gameAlgorithm() = default;
 

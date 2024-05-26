@@ -19,6 +19,15 @@ gameAlgorithm::gameAlgorithm(int depth) {
     maxDepth = depth;
 }
 
+gameAlgorithm::gameAlgorithm(interface variant, color playerColor, int depth, std::string ip_address,
+                      std::string ip_port) {
+    this->variant = variant;
+    this->playerColor = playerColor;
+    this->depth = depth;
+    this->ip_address = ip_address;
+    this->ip_port = ip_port;
+}
+
 /**
  * Finds the best move for the current game state.
  *
@@ -28,7 +37,7 @@ void gameAlgorithm::getBestMove(gameHandler &game) {
     std::vector<std::vector<pos>> legalMoves;
     legalMoves = generateMovesList(game);
     int val = 0;
-    int minValue = 0, maxValue = 0;
+    int minValue = INT_MAX, maxValue = -INT_MAX;
     int minValueIndex = 0, maxValueIndex = 0;
 
     gameState whoseTurn = game.getCurrentGameState();;
@@ -63,6 +72,7 @@ void gameAlgorithm::getBestMove(gameHandler &game) {
             maxValue = val;
             maxValueIndex = i;
         }
+        bool stop = false;
     }
 
     if (!isMaxPlayer)
@@ -159,21 +169,26 @@ std::vector<pos> gameAlgorithm::getEmptyFields(gameHandler curGame) {
  * @return The score of the board.
  */
 int gameAlgorithm::calculateBoard(std::vector<std::vector<field>> board) {
-    int blackCtr = 0;
-    int whiteCtr = 0;
+    int blackCheckerCtr = 0;
+    int whiteCheckerCtr = 0;
+    int blackKingCtr = 0;
+    int whiteKingCtr = 0;
 
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
-            if (board[x][y].pieceColor == WHITE)
-                whiteCtr++;
-            if (board[x][y].pieceColor == BLACK)
-                blackCtr++;
+            if (board[x][y].pieceColor == WHITE && board[x][y].pieceKind == CHECKER)
+                whiteCheckerCtr++;
+            if (board[x][y].pieceColor == WHITE && board[x][y].pieceKind == KING)
+                whiteKingCtr++;
+            if (board[x][y].pieceColor == BLACK && board[x][y].pieceKind == CHECKER)
+                blackCheckerCtr++;
+            if (board[x][y].pieceColor == BLACK && board[x][y].pieceKind == KING)
+                blackKingCtr++;
         }
     }
 
     // min - black, max - white
-    return whiteCtr - blackCtr;
-
+    return whiteCheckerCtr + whiteKingCtr * 4 - (blackCheckerCtr + blackKingCtr * 4 );
 }
 
 /**
