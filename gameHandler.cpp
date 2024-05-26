@@ -8,7 +8,7 @@
  * Constructor for the gameHandler class.
  */
 gameHandler::gameHandler() : roundsCtr(0) {
-    curentGameState = WHITE_TURN;
+    curentGameState = BLACK_TURN;
 
     whiteKingMoves = 0;
     blackKingMoves = 0;

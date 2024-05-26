@@ -7,7 +7,7 @@
 
 int main()
 {
-    gameAlgorithm gra(30);
+    gameAlgorithm gra(10);
     gra.play();
 
     return 0;

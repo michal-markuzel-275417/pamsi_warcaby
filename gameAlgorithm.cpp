@@ -173,6 +173,7 @@ int gameAlgorithm::calculateBoard(std::vector<std::vector<field>> board) {
 
     // min - black, max - white
     return whiteCtr - blackCtr;
+
 }
 
 /**
@@ -374,8 +375,8 @@ int gameAlgorithm::minMAxAlgo_3(gameHandler curGame, int depth, int alpha, int b
             newGame.isGameFinished();
 
             int eval = minMAxAlgo_3(newGame, depth + 1, alpha, beta, true);
-            minEval = std::max(minEval, eval);
-            alpha = std::max(alpha, eval);
+            minEval = std::min(minEval, eval);
+            beta = std::min(beta, eval);
 
             if (beta <= alpha)
                 break;
@@ -399,11 +400,11 @@ void gameAlgorithm::play() {
         if (game.curentGameState == BLACK_TURN) {
             // game.askNextMove();
 
-            // std::cout << "Czarne: random" << std::endl;
-            // game.randomMoves();
+            std::cout << "Czarne: random" << std::endl;
+            game.randomMoves();
 
-            std::cout << "Czarne: min-max" << std::endl;
-            getBestMove(game);
+            // std::cout << "Czarne: min-max" << std::endl;
+            // getBestMove(game);
         } else if (game.curentGameState == WHITE_TURN) {
             // askNextMove();
 
