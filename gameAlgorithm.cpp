@@ -10,10 +10,20 @@
 // https://www.youtube.com/watch?v=l-hh51ncgDI
 // https://gamedev.stackexchange.com/questions/31166/how-to-utilize-minimax-algorithm-in-checkers-game
 
+/**
+ * Constructor for the gameAlgorithm class.
+ *
+ * @param depth The maximum depth for the minimax algorithm.
+ */
 gameAlgorithm::gameAlgorithm(int depth) {
     maxDepth = depth;
 }
 
+/**
+ * Finds the best move for the current game state.
+ *
+ * @param game The current game state.
+ */
 void gameAlgorithm::getBestMove(gameHandler &game) {
     std::vector<std::vector<pos>> legalMoves;
     legalMoves = generateMovesList(game);
@@ -43,7 +53,7 @@ void gameAlgorithm::getBestMove(gameHandler &game) {
     // beta = inf (worst case for min player black)
     for (int i = 0; i < legalMoves.size(); i++) {
         game.currentMoves = legalMoves[i];
-        val = minMAxAlgo_3(game,0,-INT_MAX,INT_MAX,isMaxPlayer);
+        val = minMAxAlgo_3(game, 0, -INT_MAX, INT_MAX, isMaxPlayer);
 
         if (val < minValue) {
             minValue = val;
@@ -55,16 +65,21 @@ void gameAlgorithm::getBestMove(gameHandler &game) {
         }
     }
 
-
     if (!isMaxPlayer)
         game.currentMoves = legalMoves[minValueIndex];
     if (isMaxPlayer)
         game.currentMoves = legalMoves[maxValueIndex];
 }
 
-std::vector<std::vector<pos> > gameAlgorithm::generateMovesList(gameHandler curGame) {
+/**
+ * Generates a list of possible moves for the current game state.
+ *
+ * @param curGame The current game state.
+ * @return A vector of possible moves.
+ */
+std::vector<std::vector<pos>> gameAlgorithm::generateMovesList(gameHandler curGame) {
     std::vector<pos> piecesPos, emptyFields;
-    std::vector<std::vector<pos> > legalMoves;
+    std::vector<std::vector<pos>> legalMoves;
     std::vector<pos> moves;
 
     bool moveFound = false;
@@ -92,6 +107,12 @@ std::vector<std::vector<pos> > gameAlgorithm::generateMovesList(gameHandler curG
     return legalMoves;
 }
 
+/**
+ * Gets the positions of the current player's pieces.
+ *
+ * @param curGame The current game state.
+ * @return A vector of positions of the current player's pieces.
+ */
 std::vector<pos> gameAlgorithm::getPlayerFields(gameHandler curGame) {
     std::vector<pos> piecesPos;
     gameState curentGameState = curGame.getCurrentGameState();
@@ -109,6 +130,12 @@ std::vector<pos> gameAlgorithm::getPlayerFields(gameHandler curGame) {
     return piecesPos;
 }
 
+/**
+ * Gets the positions of empty fields on the board.
+ *
+ * @param curGame The current game state.
+ * @return A vector of positions of empty fields.
+ */
 std::vector<pos> gameAlgorithm::getEmptyFields(gameHandler curGame) {
     std::vector<pos> emptyFields;
 
@@ -125,7 +152,13 @@ std::vector<pos> gameAlgorithm::getEmptyFields(gameHandler curGame) {
     return emptyFields;
 }
 
-int gameAlgorithm::calculateBoard(std::vector<std::vector<field> > board) {
+/**
+ * Calculates the score of the board for the current game state.
+ *
+ * @param board The game board.
+ * @return The score of the board.
+ */
+int gameAlgorithm::calculateBoard(std::vector<std::vector<field>> board) {
     int blackCtr = 0;
     int whiteCtr = 0;
 
@@ -142,6 +175,14 @@ int gameAlgorithm::calculateBoard(std::vector<std::vector<field> > board) {
     return whiteCtr - blackCtr;
 }
 
+/**
+ * Minimax algorithm implementation without alpha-beta pruning.
+ *
+ * @param depth The current depth of the search.
+ * @param curGame The current game state.
+ * @param playerColor The color of the player to move.
+ * @return The evaluation score of the board.
+ */
 float gameAlgorithm::minMAxAlgo_1(int depth, gameHandler curGame, gameState playerColor) {
     // sprawdzanie głębokosci
     if (depth >= maxDepth) {
@@ -152,12 +193,11 @@ float gameAlgorithm::minMAxAlgo_1(int depth, gameHandler curGame, gameState play
     if (curGame.curentGameState != WHITE_TURN && curGame.curentGameState != BLACK_TURN)
         return calculateBoard(curGame.getBoard());
 
-    std::vector<std::vector<pos> > moves = generateMovesList(curGame);
+    std::vector<std::vector<pos>> moves = generateMovesList(curGame);
 
     // sprawdzanie czy były jakieś legalne ruchy
     if (moves.empty())
         return calculateBoard(curGame.getBoard());
-
 
     // min - black, max - white
     gameState nextPlayerColor;
@@ -174,7 +214,6 @@ float gameAlgorithm::minMAxAlgo_1(int depth, gameHandler curGame, gameState play
         maxEval = -FLT_MAX;
         nextPlayerColor = BLACK_TURN;
     }
-
 
     // sprawdzanie kolejnych ruchów dla każdego przypadku
     for (int i = 0; i < moves.size(); i++) {
@@ -185,8 +224,8 @@ float gameAlgorithm::minMAxAlgo_1(int depth, gameHandler curGame, gameState play
 
         float eval = minMAxAlgo_1(depth + 1, newGame, nextPlayerColor);
 
-        maxEval = std::max(eval,maxEval);
-        minEval = std::min(eval,minEval);
+        maxEval = std::max(eval, maxEval);
+        minEval = std::min(eval, minEval);
     }
 
     if (playerColor == BLACK_TURN) {
@@ -196,8 +235,20 @@ float gameAlgorithm::minMAxAlgo_1(int depth, gameHandler curGame, gameState play
     if (playerColor == WHITE_TURN) {
         return maxEval;
     }
+
+    return 0.0f; // Default return value to avoid compiler warnings
 }
 
+/**
+ * Minimax algorithm implementation with alpha-beta pruning.
+ *
+ * @param depth The current depth of the search.
+ * @param curGame The current game state.
+ * @param playerColor The color of the player to move.
+ * @param alpha The alpha value for alpha-beta pruning.
+ * @param beta The beta value for alpha-beta pruning.
+ * @return The evaluation score of the board.
+ */
 float gameAlgorithm::minMAxAlgo_2(int depth, gameHandler curGame, gameState playerColor, float alpha, float beta) {
     // sprawdzanie głębokosci
     if (depth >= maxDepth) {
@@ -208,12 +259,11 @@ float gameAlgorithm::minMAxAlgo_2(int depth, gameHandler curGame, gameState play
     if (curGame.curentGameState != WHITE_TURN && curGame.curentGameState != BLACK_TURN)
         return calculateBoard(curGame.getBoard());
 
-    std::vector<std::vector<pos> > moves = generateMovesList(curGame);
+    std::vector<std::vector<pos>> moves = generateMovesList(curGame);
 
     // sprawdzanie czy były jakieś legalne ruchy
     if (moves.empty())
         return calculateBoard(curGame.getBoard());
-
 
     // min - black, max - white
     gameState nextPlayerColor;
@@ -230,7 +280,6 @@ float gameAlgorithm::minMAxAlgo_2(int depth, gameHandler curGame, gameState play
         maxEval = -FLT_MAX;
         nextPlayerColor = BLACK_TURN;
     }
-
 
     // sprawdzanie kolejnych ruchów dla każdego przypadku
     for (int i = 0; i < moves.size(); i++) {
@@ -243,17 +292,17 @@ float gameAlgorithm::minMAxAlgo_2(int depth, gameHandler curGame, gameState play
 
         // min player - beta pruning
         if (playerColor == BLACK_TURN) {
-            minEval = std::min(eval,minEval);
+            minEval = std::min(eval, minEval);
             beta = std::min(beta, eval);
-            if(beta <= alpha)
+            if (beta <= alpha)
                 break;
         }
 
         // max player - alpha pruning
         if (playerColor == WHITE_TURN) {
-            maxEval = std::max(eval,maxEval);
+            maxEval = std::max(eval, maxEval);
             alpha = std::max(alpha, eval);
-            if(beta <= alpha)
+            if (beta <= alpha)
                 break;
         }
     }
@@ -267,9 +316,20 @@ float gameAlgorithm::minMAxAlgo_2(int depth, gameHandler curGame, gameState play
     if (playerColor == WHITE_TURN) {
         return maxEval;
     }
+
+    return 0.0f; // Default return value to avoid compiler warnings
 }
 
-// white is max, black is min
+/**
+ * Minimax algorithm implementation with alpha-beta pruning and an additional maximizingPlayer flag.
+ *
+ * @param curGame The current game state.
+ * @param depth The current depth of the search.
+ * @param alpha The alpha value for alpha-beta pruning.
+ * @param beta The beta value for alpha-beta pruning.
+ * @param maximizingPlayer True if the current player is the maximizing player.
+ * @return The evaluation score of the board.
+ */
 int gameAlgorithm::minMAxAlgo_3(gameHandler curGame, int depth, int alpha, int beta, bool maximizingPlayer) {
     // sprawdzanie głębokosci
     if (depth >= maxDepth) {
@@ -280,14 +340,13 @@ int gameAlgorithm::minMAxAlgo_3(gameHandler curGame, int depth, int alpha, int b
     if (curGame.curentGameState == W_WIN || curGame.curentGameState == B_WIN || curGame.curentGameState == DRAW)
         return calculateBoard(curGame.getBoard());
 
-    std::vector<std::vector<pos> > moves = generateMovesList(curGame);
+    std::vector<std::vector<pos>> moves = generateMovesList(curGame);
 
     // sprawdzanie czy były jakieś legalne ruchy
     if (moves.empty())
         return calculateBoard(curGame.getBoard());
 
-
-    if(maximizingPlayer == true) {
+    if (maximizingPlayer == true) {
         int maxEval = -INT_MAX;
 
         for (int i = 0; i < moves.size(); i++) {
@@ -296,17 +355,16 @@ int gameAlgorithm::minMAxAlgo_3(gameHandler curGame, int depth, int alpha, int b
             newGame.handleNextMoves();
             newGame.isGameFinished();
 
-            int eval = minMAxAlgo_3(newGame, depth + 1, alpha, beta ,false);
+            int eval = minMAxAlgo_3(newGame, depth + 1, alpha, beta, false);
             maxEval = std::max(maxEval, eval);
             alpha = std::max(alpha, eval);
 
-            if(beta <= alpha)
+            if (beta <= alpha)
                 break;
         }
 
         return maxEval;
-    }
-    else {
+    } else {
         int minEval = INT_MAX;
 
         for (int i = 0; i < moves.size(); i++) {
@@ -319,7 +377,7 @@ int gameAlgorithm::minMAxAlgo_3(gameHandler curGame, int depth, int alpha, int b
             minEval = std::max(minEval, eval);
             alpha = std::max(alpha, eval);
 
-            if(beta <= alpha)
+            if (beta <= alpha)
                 break;
         }
 
@@ -339,13 +397,13 @@ void gameAlgorithm::play() {
         }
 
         if (game.curentGameState == BLACK_TURN) {
-            game.askNextMove();
+            // game.askNextMove();
 
             // std::cout << "Czarne: random" << std::endl;
             // game.randomMoves();
 
-            // std::cout << "Czarne: min-max" << std::endl;
-            // getBestMove(game);
+            std::cout << "Czarne: min-max" << std::endl;
+            getBestMove(game);
         } else if (game.curentGameState == WHITE_TURN) {
             // askNextMove();
 

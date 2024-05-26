@@ -4,8 +4,11 @@
 
 #include "gameHandler.h"
 
+/**
+ * Constructor for the gameHandler class.
+ */
 gameHandler::gameHandler() : roundsCtr(0) {
-    curentGameState = BLACK_TURN;
+    curentGameState = WHITE_TURN;
 
     whiteKingMoves = 0;
     blackKingMoves = 0;
@@ -428,17 +431,7 @@ void gameHandler::randomMoves() {
     std::vector<pos> piecesPos, emptyFields;
     std::vector<std::vector<pos> > legalMoves;
 
-    // Zbieranie pozycji figur aktualnego gracza
-    // for (int y = 0; y < 8; y++) {
-    //     for (int x = 0; x < 8; x++) {
-    //         if ((curentGameState == WHITE_TURN && board[x][y].pieceColor == WHITE) ||
-    //             (curentGameState == BLACK_TURN && board[x][y].pieceColor == BLACK)) {
-    //             piecesPos.push_back({x, y});
-    //         }
-    //     }
-    // }
-
-    pos temp;
+    pos temp = {0,0};
     color playerColor = NONE;
 
     if (curentGameState != WHITE_TURN && curentGameState != BLACK_TURN)
@@ -450,20 +443,12 @@ void gameHandler::randomMoves() {
     if (curentGameState == BLACK_TURN)
         playerColor = BLACK;
 
+    // zbieranie pól z graczem
     for (int i = 1; i < 33; i++) {
         temp = notationToPos(i);
 
         if (board[temp.x][temp.y].pieceColor == playerColor) {
             piecesPos.push_back(temp);
-        }
-    }
-
-
-    for (int i = 1; i < 33; i++) {
-        temp = notationToPos(i);
-
-        if (board[temp.x][temp.y].pieceKind == EMPTY) {
-            emptyFields.push_back(temp);
         }
     }
 
@@ -520,6 +505,13 @@ float gameHandler::getDistanceBetween(pos tempPos_1, pos tempPos_2) {
     ));
 }
 
+/**
+ * Determines if a piece can make a capturing move.
+ *
+ * @param piecePos The position of the piece to check.
+ * @param fieldsToJump A reference to a vector that will be filled with the positions of the fields that can be jumped to capture an opponent's piece.
+ * @return True if the piece can make a capturing move, false otherwise.
+ */
 bool gameHandler::canTake(pos piecePos, std::vector<pos> &fieldsToJump) {
     color enemy = NONE;
     bool canTake = false;
@@ -532,8 +524,7 @@ bool gameHandler::canTake(pos piecePos, std::vector<pos> &fieldsToJump) {
 
     for (int x = -1; x < 2; x += 2) {
         for (int y = -1; y < 2; y += 2) {
-            if (piecePos.x + 2 * x >= 0 && piecePos.x + 2 * x < 8 && piecePos.y + 2 * y >= 0 && piecePos.y + 2 * y <
-                8) {
+            if (piecePos.x + 2 * x >= 0 && piecePos.x + 2 * x < 8 && piecePos.y + 2 * y >= 0 && piecePos.y + 2 * y < 8) {
                 if (goodOrientation(piecePos, {piecePos.x + 2 * x, piecePos.y + 2 * y})) {
                     if (board[piecePos.x + x][piecePos.y + y].pieceColor == enemy) {
                         if (board[piecePos.x + 2 * x][piecePos.y + 2 * y].pieceKind == EMPTY) {
@@ -549,7 +540,13 @@ bool gameHandler::canTake(pos piecePos, std::vector<pos> &fieldsToJump) {
     return canTake;
 }
 
-
+/**
+ * Checks if the movement from one position to another is in a good orientation.
+ *
+ * @param piecePos1 The initial position of the piece.
+ * @param piecePos2 The destination position of the piece.
+ * @return True if the movement is in a good orientation, false otherwise.
+ */
 bool gameHandler::goodOrientation(pos piecePos1, pos piecePos2) {
     orientation tempOrientation = calculateOrientation(piecePos1, piecePos2);
 
@@ -572,6 +569,11 @@ bool gameHandler::goodOrientation(pos piecePos1, pos piecePos2) {
     return true;
 }
 
+/**
+ * Sets the board state.
+ *
+ * @param board A 2D vector representing the board state.
+ */
 void gameHandler::setBoard(std::vector<std::vector<field> > board) {
     for (int x = 0; x < 8; x++)
         for (int y = 0; y < 8; y++) {
@@ -579,14 +581,30 @@ void gameHandler::setBoard(std::vector<std::vector<field> > board) {
         }
 }
 
+/**
+ * Sets the current moves.
+ *
+ * @param currentMoves A vector of positions representing the current moves.
+ */
 void gameHandler::setCurretnMoves(std::vector<pos> currentMoves) {
     this->currentMoves = currentMoves;
 }
 
+/**
+ * Gets the current board state.
+ *
+ * @return A 2D vector representing the board state.
+ */
 std::vector<std::vector<field> > gameHandler::getBoard() {
     return board;
 }
 
+/**
+ * Gets the current game state.
+ *
+ * @return The current game state.
+ */
 gameState gameHandler::getCurrentGameState() {
     return curentGameState;
 }
+
