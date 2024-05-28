@@ -52,8 +52,12 @@ int main(int argc, char *argv[]) {
     // arg 6 - ip_port
     ip_port = argv[6];
 
-    gameAlgorithm gra(variant, playerColor, 8, ip_address, ip_port);
+    // gameAlgorithm gra(variant, playerColor, 10, ip_address, ip_port);
+    // gra.play();
+
+    gameHandler gra;
     gra.play();
+
 
     return 0;
 }

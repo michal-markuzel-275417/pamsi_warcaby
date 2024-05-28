@@ -79,7 +79,7 @@ public:
 
     bool isLeagalMoves();
 
-    void play();
+    void virtual play();
 
     // void setBoard(std::vector<std::vector<field>> board);
 

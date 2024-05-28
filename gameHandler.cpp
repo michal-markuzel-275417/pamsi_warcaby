@@ -395,19 +395,22 @@ void gameHandler::play() {
     printBoard();
 
     while (curentGameState == BLACK_TURN || curentGameState == WHITE_TURN) {
+
+        if(roundsCtr > 0)
+            isGameFinished();
+
         if (curentGameState == BLACK_TURN) {
-            askNextMove();
-            // std::cout << "Czarne: random" << std::endl;
-            // randomMoves();
-        } else {
             // askNextMove();
-            std::cout << "Białe: min-max" << std::endl;
+            std::cout << "Czarne: random" << std::endl;
+            randomMoves();
+        } else {
+            askNextMove();
+            // std::cout << "Białe: min-max" << std::endl;
             // moves = algoMinMax.getBestMove(this);
             // currentMoves = moves;
         }
 
         handleNextMoves();
-        isGameFinished();
         printBoard();
 
         roundsCtr++;

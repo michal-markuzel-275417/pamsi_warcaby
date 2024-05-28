@@ -192,23 +192,10 @@ std::vector<pos> gameAlgorithm::getEmptyFields() {
  * @return The score of the board.
  */
 int gameAlgorithm::calculateBoard() {
-    int blackCheckerCtr = 0;
-    int whiteCheckerCtr = 0;
-    int blackKingCtr = 0;
-    int whiteKingCtr = 0;
+    int blackValue = 0;
+    int whiteValue = 0;
 
-    for (int y = 0; y < 8; y++) {
-        for (int x = 0; x < 8; x++) {
-            if (board[x][y].pieceColor == WHITE && board[x][y].pieceKind == CHECKER)
-                whiteCheckerCtr++;
-            if (board[x][y].pieceColor == WHITE && board[x][y].pieceKind == KING)
-                whiteKingCtr++;
-            if (board[x][y].pieceColor == BLACK && board[x][y].pieceKind == CHECKER)
-                blackCheckerCtr++;
-            if (board[x][y].pieceColor == BLACK && board[x][y].pieceKind == KING)
-                blackKingCtr++;
-        }
-    }
+    isGameFinished();
 
     if (curentGameState == W_WIN)
         return INT_MAX;
@@ -216,8 +203,21 @@ int gameAlgorithm::calculateBoard() {
     if (curentGameState == B_WIN)
         return -INT_MAX;
 
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            if (board[x][y].pieceColor == WHITE && board[x][y].pieceKind == CHECKER)
+                whiteValue += (7-y)/2;
+            if (board[x][y].pieceColor == WHITE && board[x][y].pieceKind == KING)
+                whiteValue += 10;
+            if (board[x][y].pieceColor == BLACK && board[x][y].pieceKind == CHECKER)
+                blackValue += y/2;
+            if (board[x][y].pieceColor == BLACK && board[x][y].pieceKind == KING)
+                blackValue += 10;
+        }
+    }
+
     // min - black, max - white
-    return whiteCheckerCtr + whiteKingCtr * 5 - (blackCheckerCtr + blackKingCtr * 5);
+    return whiteValue - blackValue;
 }
 
 /**
