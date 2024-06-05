@@ -107,8 +107,10 @@ bool gameHandler::isLeagalMoves() {
     }
 
     // ruszanie w złym kierunku
+    piece tempPiece = board[currentMoves[0].x][currentMoves[0].y].pieceKind;
+
     for (int i = 1; i < currentMoves.size(); i++) {
-        if (!goodOrientation(currentMoves[i - 1], currentMoves[i])) {
+        if (goodOrientation(currentMoves[i - 1], currentMoves[i], tempPiece) == false) {
             if (debug)
                 std::cerr << "Ruszanie w złym kierunku" << std::endl;
             return false;
@@ -199,6 +201,12 @@ void gameHandler::getTakingOptions(gameHandler game, gameState current_player, s
             newGame.currentMoves.clear();
             newGame.currentMoves.push_back(previous_positions.back());
             newGame.currentMoves.push_back(fieldsToJump[j]);
+
+            piece tempPiece = board[previous_positions.back().x][previous_positions.back().y].pieceKind;
+            if (goodOrientation(previous_positions.back(), fieldsToJump[j], tempPiece) == false)
+                return;
+
+
             previous_positions.push_back(fieldsToJump[j]);
 
             newGame.handleAnyMoves();
@@ -215,58 +223,112 @@ void gameHandler::getTakingOptions(gameHandler game, gameState current_player, s
     }
 }
 
+// bool gameHandler::didAllTakes() {
+//     color enemy, currentColor;
+//     if (curentGameState == WHITE_TURN) {
+//         enemy = BLACK;
+//         currentColor = WHITE;
+//     }
+//     if (curentGameState == BLACK_TURN) {
+//         enemy = WHITE;
+//         currentColor = BLACK;
+//     }
+//
+//     std::vector<pos> previous_positions;
+//     previous_positions.clear();
+//     std::vector<std::vector<pos> > legal_takes;
+//     legal_takes.clear();
+//
+//     // sprawdzanie czy było kucie jeśli było możliwe
+//     bool wasTaken = false;
+//     bool couldTake = false;
+//
+//     std::vector<pos> fieldsToJump = getEmptyFields();
+//     std::vector<pos> checkers = getPlayerFields();
+//
+//     for (int i = 0; i < checkers.size(); i++)
+//         if (canTake(checkers[i], fieldsToJump)) {
+//             couldTake = true;
+//         }
+//
+//     if(couldTake == false)
+//         return true;
+//
+//
+//     if (couldTake == true) {
+//         for (int i = 0; i < checkers.size(); i++) {
+//             previous_positions.clear();
+//             previous_positions.push_back(checkers[i]);
+//
+//             getTakingOptions(*this, curentGameState, previous_positions, legal_takes, false);
+//
+//             for (int j = 0; j < legal_takes.size(); j++) {
+//                 if (currentMoves == legal_takes[j]) {
+//                     wasTaken = true;
+//                 }
+//             }
+//         }
+//     } else {
+//         return true;
+//     }
+//
+//     if (wasTaken == true) {
+//         return true;
+//     }
+//
+//         return false;
+// }
+
 bool gameHandler::didAllTakes() {
     color enemy, currentColor;
     if (curentGameState == WHITE_TURN) {
         enemy = BLACK;
         currentColor = WHITE;
-    }
-    if (curentGameState == BLACK_TURN) {
+    } else if (curentGameState == BLACK_TURN) {
         enemy = WHITE;
         currentColor = BLACK;
+    } else {
+        return false; // nieznany stan gry
     }
 
     std::vector<pos> previous_positions;
-    previous_positions.clear();
     std::vector<std::vector<pos> > legal_takes;
-    legal_takes.clear();
 
-    // sprawdzanie czy było kucie jeśli było możliwe
     bool wasTaken = false;
     bool couldTake = false;
 
     std::vector<pos> fieldsToJump = getEmptyFields();
     std::vector<pos> checkers = getPlayerFields();
 
-    for (int i = 0; i < checkers.size() - 1; i++)
+    for (int i = 0; i < checkers.size(); i++) {
         if (canTake(checkers[i], fieldsToJump)) {
             couldTake = true;
+            break; // przerywamy, bo wystarczy znaleźć jeden taki przypadek
         }
+    }
 
+    if (!couldTake) {
+        return true;
+    }
 
-    if (couldTake == true) {
-        for (int i = 0; i < checkers.size() - 1; i++) {
-            previous_positions.clear();
-            previous_positions.push_back(checkers[i]);
+    for (int i = 0; i < checkers.size(); i++) {
+        previous_positions.clear();
+        previous_positions.push_back(checkers[i]);
 
-            getTakingOptions(*this, curentGameState, previous_positions, legal_takes, false);
+        getTakingOptions(*this, curentGameState, previous_positions, legal_takes, false);
 
-            for (int j = 0; j < legal_takes.size(); j++) {
-                if (currentMoves == legal_takes[j]) {
-                    wasTaken = true;
-                }
+        for (const auto &take: legal_takes) {
+            if (currentMoves == take) {
+                wasTaken = true;
+                break; // przerywamy, bo wystarczy znaleźć jeden taki przypadek
             }
         }
-    } else {
-        return true;
+        if (wasTaken) break;
     }
 
-    if (wasTaken == true) {
-        return true;
-    }
-
-        return false;
+    return wasTaken;
 }
+
 
 /**
  * Returns the piece between two positions.
@@ -352,6 +414,14 @@ void gameHandler::handleNextMoves() {
         return;
     }
 
+    if (false)
+        if (currentMoves.size() > 2) {
+            for (int i = 0; i < currentMoves.size(); i++) {
+                std::cerr << "X: " << currentMoves[i].x << "  Y: " << currentMoves[i].y << std::endl;
+            }
+            int a = 0;
+        }
+
     pos movedPiecePos = currentMoves[0];
     pos movedPieceFinalPos = currentMoves.back();
     field movedPiece = board[movedPiecePos.x][movedPiecePos.y];
@@ -400,8 +470,6 @@ void gameHandler::handleAnyMoves() {
             board[tempPos.x][tempPos.y] = {EMPTY, NONE};
         }
     }
-
-    promotion();
 }
 
 /**
@@ -605,7 +673,8 @@ bool gameHandler::canTake(pos piecePos, std::vector<pos> &fieldsToJump) {
         for (int y = -1; y < 2; y += 2) {
             if (piecePos.x + 2 * x >= 0 && piecePos.x + 2 * x < 8 && piecePos.y + 2 * y >= 0 && piecePos.y + 2 * y <
                 8) {
-                if (goodOrientation(piecePos, {piecePos.x + 2 * x, piecePos.y + 2 * y})) {
+                if (goodOrientation(piecePos, {piecePos.x + 2 * x, piecePos.y + 2 * y},
+                                    board[piecePos.x][piecePos.y].pieceKind)) {
                     if (board[piecePos.x + x][piecePos.y + y].pieceColor == enemy) {
                         if (board[piecePos.x + 2 * x][piecePos.y + 2 * y].pieceKind == EMPTY) {
                             canTake = true;
@@ -627,13 +696,13 @@ bool gameHandler::canTake(pos piecePos, std::vector<pos> &fieldsToJump) {
  * @param piecePos2 The destination position of the piece.
  * @return True if the movement is in a good orientation, false otherwise.
  */
-bool gameHandler::goodOrientation(pos piecePos1, pos piecePos2) {
+bool gameHandler::goodOrientation(pos piecePos1, pos piecePos2, piece pieceKind) {
     orientation tempOrientation = calculateOrientation(piecePos1, piecePos2);
 
     if (tempOrientation == WRONG)
         return false;
 
-    if (board[piecePos1.x][piecePos1.y].pieceKind == KING)
+    if (pieceKind == KING)
         return true;
 
     if (curentGameState == WHITE_TURN) {
@@ -750,4 +819,3 @@ std::vector<std::vector<pos> > gameHandler::generateMovesList() {
 
     return legalMoves;
 }
-

@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
     // // arg 6 - ip_port
     // ip_port = argv[6];
 
-    gameAlgorithm gra(GUI, BLACK, 10, "ip_address", "ip_port");
+    gameAlgorithm gra(GUI, BLACK, 5, "ip_address", "ip_port");
     gra.play();
 
     return 0;

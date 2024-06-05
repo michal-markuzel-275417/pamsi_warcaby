@@ -157,7 +157,7 @@ int gameAlgorithm::minMAxAlgo(gameAlgorithm curGame, int depth, int alpha, int b
     }
 
     // zwracanie dla końca gry
-    isGameFinished();
+    curGame.isGameFinished();
     if (curGame.curentGameState == W_WIN || curGame.curentGameState == B_WIN || curGame.curentGameState == DRAW)
         return curGame.calculateBoard();
 
@@ -192,7 +192,6 @@ int gameAlgorithm::minMAxAlgo(gameAlgorithm curGame, int depth, int alpha, int b
             gameAlgorithm newGame = curGame;
             newGame.setCurrentMoves(moves[i]);
             newGame.handleNextMoves();
-            newGame.isGameFinished();
 
             int eval = minMAxAlgo(newGame, depth + 1, alpha, beta, true);
             minEval = std::min(minEval, eval);
@@ -216,18 +215,28 @@ void gameAlgorithm::play() {
     std::cout << std::endl;
 
     while (curentGameState == BLACK_TURN || curentGameState == WHITE_TURN) {
-        if (curentGameState == BLACK_TURN && playerColor == BLACK)
-            askNextMove();
+        // if (curentGameState == BLACK_TURN && playerColor == BLACK)
+        //     askNextMove();
+        //
+        // else if (curentGameState == WHITE_TURN && playerColor == WHITE)
+        //     askNextMove();
+        //
+        // else if (curentGameState == BLACK_TURN && playerColor == WHITE) {
+        //     std::cout << " === Czarne: min-max ===" << std::endl;
+        //     getBestMove();
+        // }
+        //
+        // else if (curentGameState == WHITE_TURN && playerColor == BLACK) {
+        //     std::cout << " === Białe: min-max ===" << std::endl;
+        //     getBestMove();
+        // }
 
-        else if (curentGameState == WHITE_TURN && playerColor == WHITE)
-            askNextMove();
-
-        else if (curentGameState == BLACK_TURN && playerColor == WHITE) {
+        if (curentGameState == BLACK_TURN) {
             std::cout << " === Czarne: min-max ===" << std::endl;
             getBestMove();
         }
 
-        else if (curentGameState == WHITE_TURN && playerColor == BLACK) {
+        if (curentGameState == WHITE_TURN) {
             std::cout << " === Białe: min-max ===" << std::endl;
             getBestMove();
         }

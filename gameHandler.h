@@ -69,7 +69,7 @@ private:
 
     bool canTake(pos piecePos, std::vector<pos> &fieldsToJump);
 
-    bool goodOrientation(pos piecePos1, pos piecePos2);
+    bool goodOrientation(pos piecePos1, pos piecePos2, piece pieceKind);
 
     bool didAllTakes();
 
