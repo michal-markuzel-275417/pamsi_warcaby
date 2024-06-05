@@ -167,40 +167,105 @@ bool gameHandler::isLeagalMoves() {
         return false;
     }
 
-    // sprawdzanie czy było kucie jeśli było możliwe
-    bool wasTaken = false;
-    bool couldTake = false;
-
-    std::vector<pos> fieldsToJump;
-    fieldsToJump.clear();
-    std::vector<pos> checkers;
-
-    for (int x = 0; x < 8; x++)
-        for (int y = 0; y < 8; y++)
-            if (board[x][y].pieceColor == currentColor)
-                checkers.push_back({x, y});
-
-    for (int i = 0; i < checkers.size() - 1; i++)
-        if (canTake(checkers[i], fieldsToJump))
-            couldTake = true;
-
-    if (couldTake == true) {
-        for (int i = 0; i < currentMoves.size(); i++) {
-            for (int j = 0; j < fieldsToJump.size(); j++) {
-                if (currentMoves[i] == fieldsToJump[j]) {
-                    wasTaken = true;
-                }
-            }
-        }
-    }
-
-    if (couldTake == true && wasTaken == false || couldTake == true && takingCounter < currentMoves.size() - 2) {
+    if (didAllTakes() == false) {
         if (debug)
             std::cerr << "Brak wykonanego kucia" << std::endl;
         return false;
     }
 
     return true;
+}
+
+/**
+ * Checks all legal takes by player.
+ * @param game Current game.
+ * @param current_player Current player's color.
+ * @param previous_positions Previous checkers positions.
+ * @param legal_takes Vector with all legal taking moves.
+ * @param has_took Bool for checking all takes.
+ */
+void gameHandler::getTakingOptions(gameHandler game, gameState current_player, std::vector<pos> previous_positions,
+                                   std::vector<std::vector<pos> > &legal_takes, bool has_took) {
+    bool couldTake = false;
+
+    std::vector<pos> fieldsToJump;
+    fieldsToJump.clear();
+
+    couldTake = canTake(previous_positions.back(), fieldsToJump);
+
+    if (couldTake) {
+        for (int j = 0; j < fieldsToJump.size(); j++) {
+            gameHandler newGame = game;
+            newGame.currentMoves.clear();
+            newGame.currentMoves.push_back(previous_positions.back());
+            newGame.currentMoves.push_back(fieldsToJump[j]);
+            previous_positions.push_back(fieldsToJump[j]);
+
+            newGame.handleAnyMoves();
+            newGame.curentGameState = current_player;
+
+            has_took = true;
+
+            newGame.getTakingOptions(newGame, current_player, previous_positions, legal_takes, has_took);
+        }
+    }
+
+    if (couldTake == false && has_took == true) {
+        legal_takes.push_back(previous_positions);
+    }
+}
+
+bool gameHandler::didAllTakes() {
+    color enemy, currentColor;
+    if (curentGameState == WHITE_TURN) {
+        enemy = BLACK;
+        currentColor = WHITE;
+    }
+    if (curentGameState == BLACK_TURN) {
+        enemy = WHITE;
+        currentColor = BLACK;
+    }
+
+    std::vector<pos> previous_positions;
+    previous_positions.clear();
+    std::vector<std::vector<pos> > legal_takes;
+    legal_takes.clear();
+
+    // sprawdzanie czy było kucie jeśli było możliwe
+    bool wasTaken = false;
+    bool couldTake = false;
+
+    std::vector<pos> fieldsToJump = getEmptyFields();
+    std::vector<pos> checkers = getPlayerFields();
+
+    for (int i = 0; i < checkers.size() - 1; i++)
+        if (canTake(checkers[i], fieldsToJump)) {
+            couldTake = true;
+        }
+
+
+    if (couldTake == true) {
+        for (int i = 0; i < checkers.size() - 1; i++) {
+            previous_positions.clear();
+            previous_positions.push_back(checkers[i]);
+
+            getTakingOptions(*this, curentGameState, previous_positions, legal_takes, false);
+
+            for (int j = 0; j < legal_takes.size(); j++) {
+                if (currentMoves == legal_takes[j]) {
+                    wasTaken = true;
+                }
+            }
+        }
+    } else {
+        return true;
+    }
+
+    if (wasTaken == true) {
+        return true;
+    }
+
+        return false;
 }
 
 /**
@@ -243,7 +308,6 @@ std::vector<pos> gameHandler::notationToPos(const std::vector<int> &moves) {
     std::vector<pos> movesPos;
     std::vector<pos> blackPositions;
 
-    // Wypełnianie wektora współrzędnymi czarnych pól na planszy 8x8
     for (int y = 0; y < 8; ++y) {
         for (int x = (y % 2 == 0) ? 1 : 0; x < 8; x += 2) {
             blackPositions.push_back({x, y});
@@ -311,6 +375,33 @@ void gameHandler::handleNextMoves() {
     promotion();
 
     curentGameState = (curentGameState == BLACK_TURN) ? WHITE_TURN : BLACK_TURN;
+}
+
+/**
+ * Handles the next set of moves by updating the game state and the board.
+ */
+void gameHandler::handleAnyMoves() {
+    pos movedPiecePos = currentMoves[0];
+    pos movedPieceFinalPos = currentMoves.back();
+    field movedPiece = board[movedPiecePos.x][movedPiecePos.y];
+
+    board[movedPiecePos.x][movedPiecePos.y] = {EMPTY, NONE};
+    board[movedPieceFinalPos.x][movedPieceFinalPos.y] = movedPiece;
+
+    pos tempPos_1, tempPos_2, tempPos;
+    float distance;
+
+    for (int i = 1; i < currentMoves.size(); i++) {
+        tempPos_1 = currentMoves[i - 1];
+        tempPos_2 = currentMoves[i];
+        distance = getDistanceBetween(tempPos_1, tempPos_2);
+        if (distance > 2) {
+            tempPos = getFieldPosBetween(tempPos_1, tempPos_2);
+            board[tempPos.x][tempPos.y] = {EMPTY, NONE};
+        }
+    }
+
+    promotion();
 }
 
 /**
@@ -393,21 +484,20 @@ void gameHandler::isGameFinished() {
 void gameHandler::play() {
     std::cout << "Początkowa plansza:" << std::endl;
     printBoard();
+    std::cout << std::endl;
 
     while (curentGameState == BLACK_TURN || curentGameState == WHITE_TURN) {
-
-        if(roundsCtr > 0)
+        if (roundsCtr > 0)
             isGameFinished();
 
         if (curentGameState == BLACK_TURN) {
-            // askNextMove();
-            std::cout << "Czarne: random" << std::endl;
-            randomMoves();
+            askNextMove();
+            // std::cout << "Czarne: random" << std::endl;
+            // randomMoves();
         } else {
             askNextMove();
-            // std::cout << "Białe: min-max" << std::endl;
-            // moves = algoMinMax.getBestMove(this);
-            // currentMoves = moves;
+            // std::cout << "Białe: random" << std::endl;
+            // randomMoves();
         }
 
         handleNextMoves();
@@ -445,23 +535,8 @@ void gameHandler::randomMoves() {
     if (curentGameState == BLACK_TURN)
         playerColor = BLACK;
 
-    // zbieranie pól z graczem
-    for (int i = 1; i < 33; i++) {
-        temp = notationToPos(i);
-
-        if (board[temp.x][temp.y].pieceColor == playerColor) {
-            piecesPos.push_back(temp);
-        }
-    }
-
-    // Zbieranie pustych pól
-    for (int i = 1; i < 33; i++) {
-        temp = notationToPos(i);
-
-        if (board[temp.x][temp.y].pieceKind == EMPTY) {
-            emptyFields.push_back(temp);
-        }
-    }
+    piecesPos = getPlayerFields();
+    emptyFields = getEmptyFields();
 
     bool moveFound = false;
 
@@ -575,18 +650,6 @@ bool gameHandler::goodOrientation(pos piecePos1, pos piecePos2) {
 }
 
 /**
- * Sets the board state.
- *
- * @param board A 2D vector representing the board state.
- */
-// void gameHandler::setBoard(std::vector<std::vector<field> > board) {
-//     for (int x = 0; x < 8; x++)
-//         for (int y = 0; y < 8; y++) {
-//             this->board[x][y] = board[x][y];
-//         }
-// }
-
-/**
  * Clear currentMoves.
  */
 void gameHandler::clearCurrentMoves() {
@@ -600,3 +663,91 @@ void gameHandler::setCurrentMoves(std::vector<pos> newCurrentMoves) {
     currentMoves.clear();
     currentMoves = newCurrentMoves;
 }
+
+/**
+ * Gets the positions of the current player's pieces.
+ *
+ * @return A vector of positions of the current player's pieces.
+ */
+std::vector<pos> gameHandler::getPlayerFields() {
+    std::vector<pos> piecesPos;
+
+    // Zbieranie pozycji figur aktualnego gracza
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            if ((curentGameState == WHITE_TURN && board[x][y].pieceColor == WHITE) ||
+                (curentGameState == BLACK_TURN && board[x][y].pieceColor == BLACK)) {
+                piecesPos.push_back({x, y});
+            }
+        }
+    }
+
+    return piecesPos;
+}
+
+/**
+ * Gets the positions of empty fields on the board.
+ *
+ * @return A vector of positions of empty fields.
+ */
+std::vector<pos> gameHandler::getEmptyFields() {
+    std::vector<pos> emptyFields;
+
+    // Zbieranie pustych pól
+    pos temp;
+    for (int i = 1; i < 33; i++) {
+        temp = notationToPos(i);
+
+        if (board[temp.x][temp.y].pieceKind == EMPTY) {
+            emptyFields.push_back(temp);
+        }
+    }
+
+    return emptyFields;
+}
+
+/**
+ * Generates a list of possible moves for the current game state.
+ *
+ * @return A vector of possible moves.
+ */
+std::vector<std::vector<pos> > gameHandler::generateMovesList() {
+    std::vector<pos> piecesPos, emptyFields, previousPositions;
+    std::vector<std::vector<pos> > legalMoves;
+    std::vector<pos> moves;
+
+    bool moveFound = false;
+    piecesPos = getPlayerFields();
+    emptyFields = getEmptyFields();
+
+    for (int j = 0; j < piecesPos.size(); j++) {
+        previousPositions.clear();
+        previousPositions.push_back(piecesPos[j]);
+        getTakingOptions(*this, curentGameState, previousPositions, legalMoves, false);
+    }
+
+
+    if (!legalMoves.empty())
+        return legalMoves;
+
+    for (int i = 0; i < emptyFields.size(); i++) {
+        for (int j = 0; j < piecesPos.size(); j++) {
+            currentMoves.clear();
+            currentMoves.push_back(piecesPos[j]);
+            currentMoves.push_back(emptyFields[i]);
+
+            if (isLeagalMoves()) {
+                moveFound = true;
+                legalMoves.push_back(currentMoves);
+            }
+        }
+    }
+
+    if (moveFound == false) {
+        legalMoves.clear();
+        return legalMoves;
+    }
+
+    return legalMoves;
+}
+

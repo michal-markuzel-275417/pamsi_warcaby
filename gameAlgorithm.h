@@ -18,25 +18,13 @@ private:
     std::string ip_port;
     int roundsCtr;
 
-    std::vector<pos> getPlayerFields();
-
-    std::vector<pos> getEmptyFields();
-
     int calculateBoard();
 
-    std::vector<std::vector<pos>> generateMovesList();
-
-    // float minMAxAlgo_1(int depth, gameHandler curGame, gameState playerColor);
-    //
-    // float minMAxAlgo_2(int depth, gameHandler curGame, gameState playerColor,
-    //                    float alpha, float beta);
-
-    int minMAxAlgo_3(gameAlgorithm curGame, int depth, int alpha, int beta, bool maximizingPlayer);
+    int minMAxAlgo(gameAlgorithm curGame, int depth, int alpha, int beta, bool maximizingPlayer);
 
     void getBestMove();
 
 public:
-    gameAlgorithm(int depth);
 
     gameAlgorithm(interface variant, color playerColor, int depth, std::string ip_address,
                       std::string ip_port);
@@ -45,7 +33,7 @@ public:
 
     gameAlgorithm &operator=(const gameAlgorithm &other) = default;
 
-    void play();
+    void play() override;
 };
 
 

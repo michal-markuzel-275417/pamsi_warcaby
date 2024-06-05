@@ -40,6 +40,13 @@ class gameHandler : public checkersBoard {
 protected:
     gameState curentGameState;
     std::vector<pos> currentMoves;
+    std::vector<pos> tempCurrentMoves;
+
+    std::vector<pos> getPlayerFields();
+
+    std::vector<pos> getEmptyFields();
+
+    std::vector<std::vector<pos>> generateMovesList();
 
 private:
     bool debug = false;
@@ -64,7 +71,14 @@ private:
 
     bool goodOrientation(pos piecePos1, pos piecePos2);
 
-public:
+    bool didAllTakes();
+
+    void getTakingOptions(gameHandler game, gameState current_player, std::vector<pos> previous_positions,
+                                   std::vector<std::vector<pos> > &legal_takes, bool has_took);
+
+    void handleAnyMoves();
+
+protected:
     std::vector<pos> notationToPos(const std::vector<int> &moves);
 
     static pos notationToPos(int field);
@@ -81,11 +95,9 @@ public:
 
     void virtual play();
 
-    // void setBoard(std::vector<std::vector<field>> board);
-
     gameHandler();
 
-    ~gameHandler() = default;
+    virtual ~gameHandler() = default;
 
     gameHandler &operator=(const gameHandler &other) = default;
 
