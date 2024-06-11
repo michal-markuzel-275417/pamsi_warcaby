@@ -6,6 +6,7 @@
 #define GAMEALGORITHM_H
 #include "gameHandler.h"
 
+
 enum interface { NET, GUI };
 
 

@@ -819,3 +819,79 @@ std::vector<std::vector<pos> > gameHandler::generateMovesList() {
 
     return legalMoves;
 }
+
+/**
+ * Save oponents moves into currentMoves.
+ */
+void gameHandler::readOponentsMoves(char *ruchy) {
+    std::vector<pos> tempCurrentMoves;
+    std::string tempMoves = ruchy;
+    int i = 0;
+
+    while (i < tempMoves.size()) {
+        if (std::isdigit(ruchy[i])) {
+            size_t start = i;
+            while (i < tempMoves.size() && std::isdigit(ruchy[i])) {
+                ++i;
+            }
+            int number = std::stoi(tempMoves.substr(start, i - start));
+            tempCurrentMoves.push_back(notationToPos(number));
+
+        } else if (ruchy[i] == 'x' || ruchy[i] == '-') {
+            // Ignoruj 'x' i '-'
+            ++i;
+
+        } else {
+            ++i; // Ignoruj inne nieoczekiwane znaki
+        }
+    }
+
+    currentMoves = tempCurrentMoves;
+}
+
+/**
+ * Calculates position to notation.
+ *
+ * @return Returns number in std::string.
+ */
+std::string gameHandler::posToNotation(pos position) {
+    int board[8][8] = {
+        {0, 1, 0, 2, 0, 3, 0, 4},
+        {5, 0, 6, 0, 7, 0, 8, 0},
+        {0, 9, 0, 10, 0, 11, 0, 12},
+        {13, 0, 14, 0, 15, 0, 16, 0},
+        {0, 17, 0, 18, 0, 19, 0, 20},
+        {21, 0, 22, 0, 23, 0, 24, 0},
+        {0, 25, 0, 26, 0, 27, 0, 28},
+        {29, 0, 30, 0, 31, 0, 32, 0}
+    };
+
+    return std::to_string(board[position.y][position.x]);
+}
+
+
+/**
+ * Save oponents moves into currentMoves.
+ *
+ * @return Returns char table of moves
+ */
+char *gameHandler::getPlayersMoves() {
+    std::string moves;
+
+    moves += posToNotation(currentMoves[0]);
+
+    for (int i = 1; i < currentMoves.size(); i++) {
+        if(getDistanceBetween(currentMoves[i-1],currentMoves[i]) > sqrt(2))
+            moves += 'x';
+        else
+            moves += '-';
+        moves += posToNotation(currentMoves[i]);
+    }
+
+    char* tempMoves = new char[moves.size() + 1];
+    std::strcpy(tempMoves, moves.c_str());
+
+    return tempMoves;
+}
+
+

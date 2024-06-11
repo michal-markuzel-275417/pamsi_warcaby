@@ -10,6 +10,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <cstring>
 
 /*
  * Enum representing the current state of the game.
@@ -83,6 +84,8 @@ protected:
 
     static pos notationToPos(int field);
 
+    std::string posToNotation (pos position);
+
     void isGameFinished();
 
     void randomMoves();
@@ -104,6 +107,11 @@ protected:
     void clearCurrentMoves();
 
     void setCurrentMoves(std::vector<pos> newCurrentMoves);
+
+public:
+    void readOponentsMoves(char *ruchy);
+
+    char * getPlayersMoves();
 };
 
 

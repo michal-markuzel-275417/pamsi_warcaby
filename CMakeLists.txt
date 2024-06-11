@@ -9,4 +9,5 @@ add_executable(pamsi_warcaby main.cpp
         gameHandler.cpp
         gameHandler.h
         gameAlgorithm.cpp
-        gameAlgorithm.h)
+        gameAlgorithm.h
+)

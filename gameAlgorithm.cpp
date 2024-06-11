@@ -123,16 +123,19 @@ int gameAlgorithm::calculateBoard() {
     if (curentGameState == B_WIN)
         return -INT_MAX;
 
+    if (curentGameState == DRAW)
+        return 0;
+
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
             if (board[x][y].pieceColor == WHITE && board[x][y].pieceKind == CHECKER)
-                whiteValue += (7-y)/2;
+                whiteValue += 1;
             if (board[x][y].pieceColor == WHITE && board[x][y].pieceKind == KING)
-                whiteValue += 10;
+                whiteValue += 2;
             if (board[x][y].pieceColor == BLACK && board[x][y].pieceKind == CHECKER)
-                blackValue += y/2;
+                blackValue += 1;
             if (board[x][y].pieceColor == BLACK && board[x][y].pieceKind == KING)
-                blackValue += 10;
+                blackValue += 2;
         }
     }
 
@@ -232,13 +235,18 @@ void gameAlgorithm::play() {
         // }
 
         if (curentGameState == BLACK_TURN) {
+            char * ruchy;
             std::cout << " === Czarne: min-max ===" << std::endl;
-            getBestMove();
+            std::cout << "Podaj ruchy dla czarnych: ";
+            std::cin >> ruchy;
+
+            readOponentsMoves(ruchy);
         }
 
         if (curentGameState == WHITE_TURN) {
             std::cout << " === Białe: min-max ===" << std::endl;
             getBestMove();
+            std::cout << "Ruchy w notacji: " << getPlayersMoves() << std::endl;
         }
 
         handleNextMoves();
