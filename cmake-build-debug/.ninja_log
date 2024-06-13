@@ -1,8 +1,19 @@
 # ninja log v6
+3	320	1718284070192810030	CMakeFiles/pamsi_warcaby.dir/checkers_client.cpp.o	d7a6a0e35c94db75
+3	83	1718284070192810030	CMakeFiles/pamsi_warcaby.dir/checkers_broker.c.o	4737139b03a72b33
 472	544	1718098773460412882	pamsi_warcaby	181bc21c6b638830
-1	21	1718099102610448951	build.ninja	e4e90042e0f70ee6
-3	467	1718098096108313026	CMakeFiles/pamsi_warcaby.dir/gameAlgorithm.cpp.o	ef6af0f1a2a75be5
+3	26	1718284090860911072	build.ninja	e4e90042e0f70ee6
+2	428	1718284070192810030	CMakeFiles/pamsi_warcaby.dir/gameAlgorithm.cpp.o	ef6af0f1a2a75be5
 2	321	1718098096108313026	CMakeFiles/pamsi_warcaby.dir/checkersBoard.cpp.o	bcde4a3e36c036de
-1	472	1718098772988352773	CMakeFiles/pamsi_warcaby.dir/gameHandler.cpp.o	55808e9f2d3dddb
-1	329	1718098096108313026	CMakeFiles/pamsi_warcaby.dir/main.cpp.o	2e97d16006a2eb3a
-1	21	1718099102610448951	build.ninja	e4e90042e0f70ee6
+2	481	1718284070192810030	CMakeFiles/pamsi_warcaby.dir/gameHandler.cpp.o	55808e9f2d3dddb
+2	284	1718284070192810030	CMakeFiles/pamsi_warcaby.dir/main.cpp.o	2e97d16006a2eb3a
+1	23	1718284090860911072	build.ninja	e4e90042e0f70ee6
+2	118	1718284090872911130	pamsi_warcaby	181bc21c6b638830
+1	474	1718284204777467981	CMakeFiles/pamsi_warcaby.dir/gameAlgorithm.cpp.o	ef6af0f1a2a75be5
+474	551	1718284205253470308	pamsi_warcaby	181bc21c6b638830
+2	457	1718298359291527193	CMakeFiles/pamsi_warcaby.dir/gameAlgorithm.cpp.o	ef6af0f1a2a75be5
+2	513	1718298359291527193	CMakeFiles/pamsi_warcaby.dir/gameHandler.cpp.o	55808e9f2d3dddb
+1	295	1718298373817794295	CMakeFiles/pamsi_warcaby.dir/main.cpp.o	2e97d16006a2eb3a
+295	367	1718298374109677120	pamsi_warcaby	181bc21c6b638830
+1	342	1718299520167864466	CMakeFiles/pamsi_warcaby.dir/main.cpp.o	2e97d16006a2eb3a
+342	411	1718299520507713034	pamsi_warcaby	181bc21c6b638830

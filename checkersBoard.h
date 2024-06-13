@@ -26,10 +26,9 @@ enum color {
  * Struct representing a position on the board.
  */
 struct pos {
-    int x; // X-coordinate of the position
-    int y; // Y-coordinate of the position
+    int x;
+    int y;
 
-    // Overloading the equality operator
     bool operator==(const pos& other) const {
         return (x == other.x && y == other.y);
     }

@@ -90,10 +90,6 @@ protected:
 
     void randomMoves();
 
-    void askNextMove();
-
-    void handleNextMoves();
-
     bool isLeagalMoves();
 
     void virtual play();
@@ -112,6 +108,10 @@ public:
     void readOponentsMoves(char *ruchy);
 
     char * getPlayersMoves();
+
+    void handleNextMoves();
+
+    void askNextMove();
 };
 
 

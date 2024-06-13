@@ -23,12 +23,14 @@ private:
 
     int minMAxAlgo(gameAlgorithm curGame, int depth, int alpha, int beta, bool maximizingPlayer);
 
-    void getBestMove();
-
 public:
+
+    void getBestMove();
 
     gameAlgorithm(interface variant, color playerColor, int depth, std::string ip_address,
                       std::string ip_port);
+
+    gameAlgorithm(int argc, char *argv[]);
 
     ~gameAlgorithm() = default;
 

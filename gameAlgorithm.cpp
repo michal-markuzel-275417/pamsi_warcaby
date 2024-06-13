@@ -6,9 +6,7 @@
 
 #include <cfloat>
 #include <climits>
-
-// https://www.youtube.com/watch?v=l-hh51ncgDI
-// https://gamedev.stackexchange.com/questions/31166/how-to-utilize-minimax-algorithm-in-checkers-game
+#include <utility>
 
 /**
  * Constructor for the gameAlgorithm class.
@@ -25,9 +23,37 @@ gameAlgorithm::gameAlgorithm(interface variant, color playerColor, int depth, st
     this->variant = variant;
     this->playerColor = playerColor;
     this->depth = depth;
-    this->ip_address = ip_address;
-    this->ip_port = ip_port;
+    this->ip_address = std::move(ip_address);
+    this->ip_port = std::move(ip_port);
     roundsCtr = 0;
+}
+
+gameAlgorithm::gameAlgorithm(int argc, char *argv[]) {
+    roundsCtr = 0;
+
+    // arg 1 - interference
+    std::string arg1 = argv[1];
+    if (arg1 == "NET") {
+        variant = NET;
+    } else if (arg1 == "GUI") {
+        variant = GUI;
+    } else {
+    }
+
+    // arg 2 - player color
+    std::string arg2 = argv[2];
+    if (arg2 == "WHITE" || arg2 == "white") {
+        playerColor = WHITE;
+    } else if (arg2 == "BLACK" || arg2 == "black") {
+        playerColor = BLACK;
+    } else {
+    }
+
+    // arg 3 - min_max depth
+    try {
+        depth = std::stoi(argv[3]);
+    } catch (const std::invalid_argument &e) {
+    }
 }
 
 /**
@@ -154,7 +180,7 @@ int gameAlgorithm::calculateBoard() {
  * @return The evaluation score of the board.
  */
 int gameAlgorithm::minMAxAlgo(gameAlgorithm curGame, int depth, int alpha, int beta, bool maximizingPlayer) {
-    // sprawdzanie głębokosci
+    // sprawdzanie dla osiągniętej głębokosci
     if (depth >= this->depth) {
         return curGame.calculateBoard();
     }
@@ -164,6 +190,7 @@ int gameAlgorithm::minMAxAlgo(gameAlgorithm curGame, int depth, int alpha, int b
     if (curGame.curentGameState == W_WIN || curGame.curentGameState == B_WIN || curGame.curentGameState == DRAW)
         return curGame.calculateBoard();
 
+    // generowanie listy ruchów
     std::vector<std::vector<pos> > moves = generateMovesList();
 
     // sprawdzanie czy były jakieś legalne ruchy
@@ -178,11 +205,14 @@ int gameAlgorithm::minMAxAlgo(gameAlgorithm curGame, int depth, int alpha, int b
             newGame.setCurrentMoves(moves[i]);
             newGame.handleNextMoves();
 
+            // wywołanie algorytmu dla kolejnej planszy
             int eval = minMAxAlgo(newGame, depth + 1, alpha, beta, false);
+
+            // alpha cięcie
             maxEval = std::max(maxEval, eval);
             alpha = std::max(alpha, eval);
 
-            // ostre cięcie
+            // zwracanie dla ostrego cięcia
             if (beta < alpha)
                 break;
         }
@@ -197,14 +227,15 @@ int gameAlgorithm::minMAxAlgo(gameAlgorithm curGame, int depth, int alpha, int b
             newGame.handleNextMoves();
 
             int eval = minMAxAlgo(newGame, depth + 1, alpha, beta, true);
+
+            // beta cięcie
             minEval = std::min(minEval, eval);
             beta = std::min(beta, eval);
 
-            // ostre cięcie
+            // zwracanie dla ostrego cięcia
             if (beta < alpha)
                 break;
         }
-
         return minEval;
     }
 }
@@ -218,35 +249,20 @@ void gameAlgorithm::play() {
     std::cout << std::endl;
 
     while (curentGameState == BLACK_TURN || curentGameState == WHITE_TURN) {
-        // if (curentGameState == BLACK_TURN && playerColor == BLACK)
-        //     askNextMove();
-        //
-        // else if (curentGameState == WHITE_TURN && playerColor == WHITE)
-        //     askNextMove();
-        //
-        // else if (curentGameState == BLACK_TURN && playerColor == WHITE) {
-        //     std::cout << " === Czarne: min-max ===" << std::endl;
-        //     getBestMove();
-        // }
-        //
-        // else if (curentGameState == WHITE_TURN && playerColor == BLACK) {
-        //     std::cout << " === Białe: min-max ===" << std::endl;
-        //     getBestMove();
-        // }
+        if (curentGameState == BLACK_TURN && playerColor == BLACK)
+            askNextMove();
 
-        if (curentGameState == BLACK_TURN) {
-            char * ruchy;
+        else if (curentGameState == WHITE_TURN && playerColor == WHITE)
+            askNextMove();
+
+        else if (curentGameState == BLACK_TURN && playerColor == WHITE) {
             std::cout << " === Czarne: min-max ===" << std::endl;
-            std::cout << "Podaj ruchy dla czarnych: ";
-            std::cin >> ruchy;
-
-            readOponentsMoves(ruchy);
+            getBestMove();
         }
 
-        if (curentGameState == WHITE_TURN) {
+        else if (curentGameState == WHITE_TURN && playerColor == BLACK) {
             std::cout << " === Białe: min-max ===" << std::endl;
             getBestMove();
-            std::cout << "Ruchy w notacji: " << getPlayersMoves() << std::endl;
         }
 
         handleNextMoves();

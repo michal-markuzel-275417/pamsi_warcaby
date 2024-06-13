@@ -169,6 +169,7 @@ bool gameHandler::isLeagalMoves() {
         return false;
     }
 
+    // sprawdzanie wykonanego kucia
     if (didAllTakes() == false) {
         if (debug)
             std::cerr << "Brak wykonanego kucia" << std::endl;
@@ -223,62 +224,11 @@ void gameHandler::getTakingOptions(gameHandler game, gameState current_player, s
     }
 }
 
-// bool gameHandler::didAllTakes() {
-//     color enemy, currentColor;
-//     if (curentGameState == WHITE_TURN) {
-//         enemy = BLACK;
-//         currentColor = WHITE;
-//     }
-//     if (curentGameState == BLACK_TURN) {
-//         enemy = WHITE;
-//         currentColor = BLACK;
-//     }
-//
-//     std::vector<pos> previous_positions;
-//     previous_positions.clear();
-//     std::vector<std::vector<pos> > legal_takes;
-//     legal_takes.clear();
-//
-//     // sprawdzanie czy było kucie jeśli było możliwe
-//     bool wasTaken = false;
-//     bool couldTake = false;
-//
-//     std::vector<pos> fieldsToJump = getEmptyFields();
-//     std::vector<pos> checkers = getPlayerFields();
-//
-//     for (int i = 0; i < checkers.size(); i++)
-//         if (canTake(checkers[i], fieldsToJump)) {
-//             couldTake = true;
-//         }
-//
-//     if(couldTake == false)
-//         return true;
-//
-//
-//     if (couldTake == true) {
-//         for (int i = 0; i < checkers.size(); i++) {
-//             previous_positions.clear();
-//             previous_positions.push_back(checkers[i]);
-//
-//             getTakingOptions(*this, curentGameState, previous_positions, legal_takes, false);
-//
-//             for (int j = 0; j < legal_takes.size(); j++) {
-//                 if (currentMoves == legal_takes[j]) {
-//                     wasTaken = true;
-//                 }
-//             }
-//         }
-//     } else {
-//         return true;
-//     }
-//
-//     if (wasTaken == true) {
-//         return true;
-//     }
-//
-//         return false;
-// }
-
+/**
+ * Returns true when player did all posible takes or false in other scenario.
+ *
+ * @return true or false
+ */
 bool gameHandler::didAllTakes() {
     color enemy, currentColor;
     if (curentGameState == WHITE_TURN) {
@@ -303,7 +253,7 @@ bool gameHandler::didAllTakes() {
     for (int i = 0; i < checkers.size(); i++) {
         if (canTake(checkers[i], fieldsToJump)) {
             couldTake = true;
-            break; // przerywamy, bo wystarczy znaleźć jeden taki przypadek
+            break;
         }
     }
 
@@ -320,7 +270,7 @@ bool gameHandler::didAllTakes() {
         for (const auto &take: legal_takes) {
             if (currentMoves == take) {
                 wasTaken = true;
-                break; // przerywamy, bo wystarczy znaleźć jeden taki przypadek
+                break;
             }
         }
         if (wasTaken) break;
@@ -413,14 +363,6 @@ void gameHandler::handleNextMoves() {
             curentGameState = B_WIN;
         return;
     }
-
-    if (false)
-        if (currentMoves.size() > 2) {
-            for (int i = 0; i < currentMoves.size(); i++) {
-                std::cerr << "X: " << currentMoves[i].x << "  Y: " << currentMoves[i].y << std::endl;
-            }
-            int a = 0;
-        }
 
     pos movedPiecePos = currentMoves[0];
     pos movedPieceFinalPos = currentMoves.back();
@@ -560,12 +502,8 @@ void gameHandler::play() {
 
         if (curentGameState == BLACK_TURN) {
             askNextMove();
-            // std::cout << "Czarne: random" << std::endl;
-            // randomMoves();
         } else {
             askNextMove();
-            // std::cout << "Białe: random" << std::endl;
-            // randomMoves();
         }
 
         handleNextMoves();
@@ -583,7 +521,7 @@ void gameHandler::play() {
 }
 
 /**
- * Generates random moves for the white pieces.
+ * Generates random moves for player.
  */
 void gameHandler::randomMoves() {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
