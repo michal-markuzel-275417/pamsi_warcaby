@@ -23,6 +23,10 @@ private:
 
     int minMAxAlgo(gameAlgorithm curGame, int depth, int alpha, int beta, bool maximizingPlayer);
 
+    int vulnerablePenalty(int row, int col, field piece);
+
+    int heurystyka();
+
 public:
 
     void getBestMove();

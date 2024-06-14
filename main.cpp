@@ -16,18 +16,13 @@
 #include <netdb.h>
 
 // ===================== odpalanie gry przez interfejs NET =============================
-// g++ -std=c++17 main.cpp checkersBoard.cpp gameHandler.cpp gameAlgorithm.cpp -o client1
-// g++ -std=c++17 main.cpp checkersBoard.cpp gameHandler.cpp gameAlgorithm.cpp -o client2
+// g++ -std=c++17 main.cpp checkersBoard.cpp gameHandler.cpp gameAlgorithm.cpp -o client
 // gcc -o broker -g -Wall -std=c17 -pedantic checkers_broker.c
-// ./broker client1 client2
+// ./broker client client
 
 // ===================== odpalanie gry przez interfejs GUI =============================
 // g++ -std=c++17 main.cpp checkersBoard.cpp gameHandler.cpp gameAlgorithm.cpp -o gra
 // ./gra GUI WHITE 20
-
-// ============== pomoce naukowe ===========================
-// https://www.youtube.com/watch?v=l-hh51ncgDI
-// https://gamedev.stackexchange.com/questions/31166/how-to-utilize-minimax-algorithm-in-checkers-game
 
 // define i errno z clienta
 #define BUFSPACE 1024
@@ -92,7 +87,7 @@ int clientNet(int argc, char *argv[]) {
             std::strcpy(tempMoves, moves.c_str());
             // ================= ZMIANA - przekazywanie ruchu ==============
 
-            printf("Wysylam do serwera moj ruch: %s\n", tempMoves);
+            // printf("Wysylam do serwera moj ruch: %s\n", tempMoves); - usunięcie komentarzy
 
             if (write(serv_sock, tempMoves, strlen(tempMoves)) < 0) {
                 // === ZMIANA ===
@@ -100,7 +95,7 @@ int clientNet(int argc, char *argv[]) {
                 exit(errno);
             }
         }
-        printf("Czekam na ruch przeciwnika ...\n");
+        // printf("Czekam na ruch przeciwnika ...\n"); - usunięcie komentarzy
         n = read(serv_sock, buf, sizeof buf);
         if (n < 0) {
             perror("read");
@@ -108,11 +103,11 @@ int clientNet(int argc, char *argv[]) {
         }
         if (n == 0) {
             /* pusty komunikat = zamkniete polaczenie */
-            printf("Broker zamknal polaczenie, hmmmm...\n");
+            // printf("Broker zamknal polaczenie, hmmmm...\n"); - usunięcie komentarzy
             exit(0);
         }
         buf[n] = 0;
-        printf("Otrzymalem ruch przeciwnika: %s", buf);
+        // printf("Otrzymalem ruch przeciwnika: %s", buf); - usunięcie komentarzy
 
         // ================= ZMIANA - odbieranie ruchu ==============
         if (buf[n - 1] != '\n') {
@@ -141,9 +136,7 @@ int main(int argc, char *argv[]) {
 
     if (variant == NET) {
         clientNet(argc, argv);
-    }
-
-    if (variant == GUI) {
+    } else {
         gameAlgorithm gra(argc, argv);
         gra.play();
     }

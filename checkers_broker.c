@@ -124,7 +124,7 @@ int fields[10][10] =  { { -2, -2, -2, -2, -2, -2, -2, -2, -2, -2 },
    41 - remis - przekroczony czas gry
 */
 #define DRAW_LIMIT 20
-struct timeval timeout = { 10, 0 };	/* domyslnie 10 sekund na odpowiedz */
+struct timeval timeout = { 60, 0 };	/* domyslnie 10 sekund na odpowiedz */
 
 
 int errno;

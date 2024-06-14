@@ -75,7 +75,6 @@ void gameAlgorithm::getBestMove() {
     legalMoves = generateMovesList();
     int val = 0;
     int minValue = INT_MAX, maxValue = -INT_MAX;
-    int minValueIndex = 0, maxValueIndex = 0;
 
     if (legalMoves.empty() && curentGameState == WHITE_TURN) {
         curentGameState = B_WIN;
@@ -94,7 +93,9 @@ void gameAlgorithm::getBestMove() {
         isMaxPlayer = true;
 
     // alpha = -inf (worst case for max player white)
+    // white is max player
     // beta = inf (worst case for min player black)
+    // black is min player
 
     std::vector<evalBoards> valuesVector;
 
@@ -138,9 +139,6 @@ void gameAlgorithm::getBestMove() {
  * @return The score of the board.
  */
 int gameAlgorithm::calculateBoard() {
-    int blackValue = 0;
-    int whiteValue = 0;
-
     isGameFinished();
 
     if (curentGameState == W_WIN)
@@ -152,21 +150,121 @@ int gameAlgorithm::calculateBoard() {
     if (curentGameState == DRAW)
         return 0;
 
-    for (int y = 0; y < 8; y++) {
-        for (int x = 0; x < 8; x++) {
-            if (board[x][y].pieceColor == WHITE && board[x][y].pieceKind == CHECKER)
-                whiteValue += 1;
-            if (board[x][y].pieceColor == WHITE && board[x][y].pieceKind == KING)
-                whiteValue += 2;
-            if (board[x][y].pieceColor == BLACK && board[x][y].pieceKind == CHECKER)
-                blackValue += 1;
-            if (board[x][y].pieceColor == BLACK && board[x][y].pieceKind == KING)
-                blackValue += 2;
+    return heurystyka();
+}
+
+
+/**
+ * Calculates the penalty for making move beneficial for oponent.
+ *
+ * @return The value of penalty.
+ */
+int gameAlgorithm::vulnerablePenalty(int row, int col, field piece) {
+    int penalty = 0;
+    int takePenalty = 2;
+
+    if (piece.pieceColor == BLACK) {
+        if (row - 1 >= 0 && col - 1 >= 0 && board[col - 1][row - 1].pieceKind == EMPTY)
+            if (row + 1 <= 7 && col + 1 <= 7 && board[col + 1][row + 1].pieceColor == WHITE)
+                penalty += takePenalty; // dodaje karę dla pionka postawionego przy przeciwniku i z wolnym polem za sobą
+
+        if (row - 1 >= 0 && col + 1 <= 7 && board[col + 1][row - 1].pieceKind == EMPTY)
+            if (row + 1 <= 7 && col - 1 >= 0 && board[col - 1][row + 1].pieceColor == WHITE)
+                penalty += takePenalty; // dodaje karę dla pionka postawionego przy przeciwniku i z wolnym polem za sobą
+    } else if (piece.pieceColor == WHITE) {
+        if (row + 1 <= 7 && col - 1 >= 0 && board[col - 1][row + 1].pieceKind == EMPTY)
+            if (row - 1 >= 0 && col + 1 <= 7 && board[col + 1][row - 1].pieceColor == BLACK)
+                penalty += takePenalty; // dodaje karę dla pionka postawionego przy przeciwniku i z wolnym polem za sobą
+
+        if (row + 1 <= 7 && col + 1 <= 7 && board[col + 1][row + 1].pieceKind == EMPTY)
+            if (row - 1 >= 0 && col - 1 >= 0 && board[col - 1][row - 1].pieceColor == BLACK)
+                penalty += takePenalty; // dodaje karę dla pionka postawionego przy przeciwniku i z wolnym polem za sobą
+    }
+
+    return penalty;
+}
+
+
+/**
+ * Calculates the score of the board for the current game state.
+ *
+ * @return The score of the board.
+ */
+int gameAlgorithm::heurystyka() {
+    const int w1 = 1;
+    const int w2 = 2;
+
+    int valueWhiteCheckers = 0;
+    int valueBlackCheckers = 0;
+    int valueWhiteKings = 0;
+    int valueBlackKings = 0;
+
+    // pętla for licząca wartości dla każde figury na planszy w zależnośći od jej położenia
+    for (int row = 0; row < 8; ++row) {
+        for (int col = 0; col < 8; ++col) {
+            field pieceField = board[col][row];
+
+            if (pieceField.pieceKind == CHECKER && pieceField.pieceColor == WHITE) {
+                // dodanie punktu za pionka
+                valueWhiteCheckers++;
+
+                // dodanie punktu za stanie przy ścianie (bezpieczniej)
+                if (col == 0 || col == 7)
+                    valueWhiteCheckers += 2;
+
+                // dodanie punktu na stanie na polu do promocji lub przy tym polu
+                if (row == 0 || row == 1)
+                    valueWhiteCheckers += 2;
+
+                // odjęcie punktów za ustawienie pozwalające na skucie
+                valueWhiteKings -= vulnerablePenalty(row, col, pieceField);
+            }
+            if (pieceField.pieceKind == KING && pieceField.pieceColor == WHITE) {
+                // dodanie punktu za króla
+                valueWhiteKings++;
+
+                // dodanie punktu za stanie przy ścianie (bezpieczniej)
+                if (col == 0 || col == 7)
+                    valueWhiteKings += 2;
+
+                // odjęcie punktów za ustawienie pozwalające na skucie
+                valueWhiteKings -= vulnerablePenalty(row, col, pieceField);
+            }
+            if (pieceField.pieceKind == CHECKER && pieceField.pieceColor == BLACK) {
+                // dodanie punktu za pionka
+                valueBlackCheckers++;
+
+                // dodanie punktu za stanie przy ścianie (bezpieczniej)
+                if (col == 0 || col == 7)
+                    valueBlackCheckers += 2;
+
+                // dodanie punktu na stanie na polu do promocji lub przy tym polu
+                if (row == 7 || row == 6)
+                    valueBlackCheckers += 2;
+
+                // odjęcie punktów za ustawienie pozwalające na skucie
+                valueWhiteKings -= vulnerablePenalty(row, col, pieceField);
+            }
+            if (pieceField.pieceKind == KING && pieceField.pieceColor == BLACK) {
+                // dodanie punktu za króla
+                valueBlackKings++;
+
+                // dodanie punktu za stanie przy ścianie (bezpieczniej)
+                if (col == 0 || col == 7)
+                    valueBlackKings += 2;
+
+
+                // odjęcie punktów za ustawienie pozwalające na skucie
+                valueWhiteKings -= vulnerablePenalty(row, col, pieceField);
+            }
         }
     }
 
-    // min - black, max - white
-    return whiteValue - blackValue;
+    // suma wartości białych minus wartości czarnych, pomnożone przez odpowiednie współczynniki
+    int wartosc = (w1 * (valueWhiteCheckers - valueBlackCheckers) +
+                   w2 * (valueWhiteKings - valueBlackKings));
+
+    return wartosc;
 }
 
 /**
@@ -185,7 +283,7 @@ int gameAlgorithm::minMAxAlgo(gameAlgorithm curGame, int depth, int alpha, int b
         return curGame.calculateBoard();
     }
 
-    // zwracanie dla końca gry
+    // zwracanie evaluacji planszy dla końca gry
     curGame.isGameFinished();
     if (curGame.curentGameState == W_WIN || curGame.curentGameState == B_WIN || curGame.curentGameState == DRAW)
         return curGame.calculateBoard();
@@ -193,26 +291,31 @@ int gameAlgorithm::minMAxAlgo(gameAlgorithm curGame, int depth, int alpha, int b
     // generowanie listy ruchów
     std::vector<std::vector<pos> > moves = generateMovesList();
 
-    // sprawdzanie czy były jakieś legalne ruchy
+    // sprawdzanie czy były jakieś legalne ruchy, jeśli nie to zwraca evaluacje planszy
     if (moves.empty())
         return curGame.calculateBoard();
 
     if (maximizingPlayer == true) {
+        // ustawienie maxEval na najgorszy przypadek
         int maxEval = -INT_MAX;
 
         for (int i = 0; i < moves.size(); i++) {
             gameAlgorithm newGame = curGame;
+
+            // generowanie i plansz dla możliwych ruchów
             newGame.setCurrentMoves(moves[i]);
+
+            // wykonywanie ruchów
             newGame.handleNextMoves();
 
-            // wywołanie algorytmu dla kolejnej planszy
+            // wywołanie algorytmu dla każdej kolejnej planszy
             int eval = minMAxAlgo(newGame, depth + 1, alpha, beta, false);
 
             // alpha cięcie
             maxEval = std::max(maxEval, eval);
             alpha = std::max(alpha, eval);
 
-            // zwracanie dla ostrego cięcia
+            // break dla ostrego cięcia
             if (beta < alpha)
                 break;
         }
@@ -223,16 +326,21 @@ int gameAlgorithm::minMAxAlgo(gameAlgorithm curGame, int depth, int alpha, int b
 
         for (int i = 0; i < moves.size(); i++) {
             gameAlgorithm newGame = curGame;
+
+            // generowanie i plansz dla możliwych ruchów
             newGame.setCurrentMoves(moves[i]);
+
+            // wykonywanie ruchów
             newGame.handleNextMoves();
 
+            // wywołanie algorytmu dla każdej kolejnej planszy
             int eval = minMAxAlgo(newGame, depth + 1, alpha, beta, true);
 
             // beta cięcie
             minEval = std::min(minEval, eval);
             beta = std::min(beta, eval);
 
-            // zwracanie dla ostrego cięcia
+            // break dla ostrego cięcia
             if (beta < alpha)
                 break;
         }
@@ -258,9 +366,7 @@ void gameAlgorithm::play() {
         else if (curentGameState == BLACK_TURN && playerColor == WHITE) {
             std::cout << " === Czarne: min-max ===" << std::endl;
             getBestMove();
-        }
-
-        else if (curentGameState == WHITE_TURN && playerColor == BLACK) {
+        } else if (curentGameState == WHITE_TURN && playerColor == BLACK) {
             std::cout << " === Białe: min-max ===" << std::endl;
             getBestMove();
         }
